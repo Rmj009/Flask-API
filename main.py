@@ -1,21 +1,10 @@
-# export DATABASE_URL='postgres://localhost:5432/
-
+# main.py
+from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-from flask import request, jsonify, escape
-from flask_sqlalchemy import SQLAlchemy  #import sqlite3
+from datetime import datetime
+# from db-migrator import db
 db = SQLAlchemy()
 app = Flask(__name__)
-# app = flask.Flask(__name__) # coz, import style >>> import flask
-app.config["DEBUG"] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user_name:docpwd@IP:5432/db_name"
-db.init_app(app)
-# -------------import the others function/ psql::db-migrator
-from utils import ctest
-# from .calculator import sum1
-# #load_manuplate # ./../
-import os
-print(os.getcwd()) # print the pwd status
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user_name:docusr@IP:5432/db-migrator"
@@ -82,30 +71,20 @@ class spc_measure_point_history(db.Model): #Sojourn
         # self.state
 
 
-
-
-#---------------------GET-----------------------
-@app.route('/', methods=['GET'])
-def home():
-    return '''
-<h1>{{ -- }}的个人主页</h1>
-{% if bio %}
-    <p>{{ bio }}</p>  {# 这里的缩进只是为了可读性，不是必须的 #}
-{% else %}
-    <p>自我介绍为空。</p>
-{% endif %}  {# 大部分 Jinja 语句都需要声明关闭 #}
-'''
-@app.route('/', methods=['GET','POST','DELETE','UPDATE'])
+@app.route('/')
 def index():
     db.create_all()
+    
     # Add data
     testxxx = spc_measure_point_history('Max',8888,'', '', '','')
     db.session.add(testxxx)
     db.session.commit()
+
     # Read data
     # query = spc_measure_point_history.query.filter_by(value = 12).first()
     # print(query.value)
     # print(query.uuid)
+
     # sql_cmd =
     #     SELECT *
     #     FROM spc_measure_point_history
@@ -115,51 +94,16 @@ def index():
     return 'ok'
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'GET':
-        return do_the_login()
-    else:
-        return show_the_login_form()
 
 
-@app.route("/performance", methods=["GET"])
-def performance():
-  output_dict = {"success": False}
-  if request.method == "GET":
-      # query params
-      arg_n = request.args.get('n')
-      # body json
-      body_json = request.get_json()
-      print("body_json: ", body_json)
-      print( body_json['jj'] )
-      n =  ctest.sum1(arg_n) #nmp, trendObj = load_manpulate()
-      print("n: ", n)
-    #   print("trendObj: ", trendObj)
-      return jsonify(output_dict), 200
+    # SELECT spc_measure_point_config.name, spc_measure_point_history.value,(spc_measure_point_config.usl+spc_measure_point_config.std_value) AS USL, (spc_measure_point_config.std_value-spc_measure_point_config.lsl) AS LSL --,spc_measure_point_history.measure_object_id
 
+    # FROM spc_measure_point_config  left OUTER JOIN spc_measure_point_history
+    # ON spc_measure_point_config.uuid = spc_measure_point_history.spc_measure_point_config_uuid
 
+    # WHERE spc_measure_point_history.value NOT IN (-88888888)
 
-# @app.route("/predict", methods=["POST"])
-# def predict():
-#   output_dict = {"success": False}  
-#   if Flask.request.method == "POST":
-#     data = Flask.request.json  # 讀取 json
-#   return Flask.jsonify(output_dict), 200 # 回傳json, http status code
+    # order by spc_measure_point_config.uuid
+    
+    
 
-
-#-------ERROR Handling----------
-@app.errorhandler(404)
-def page_not_found(e):
-    return "<h1>404</h1><p>The resource could not be found.</p>", 404
-
-#-----Other module awaits--
-# def dict_factory(cursor, row):
-#     d = {}
-#     for idx, col in enumerate(cursor.description):
-#         d[col[0]] = row[idx]
-#     return d
-
-# app.run()
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, port=5000)

@@ -5,6 +5,9 @@ import statistics as stat
 
 data_transforms = None
 
+# app.config['SQLALCHEMY_DATABASE_URI'] = [DB_TYPE]+[DB_CONNECTOR]://[USERNAME]:[PASSWORD]@[HOST]:[PORT]/[DB_NAME]
+
+
 def load_data(cls_file, log_file):
     global classes, performance
     with open(cls_file, "r") as f:
