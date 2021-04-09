@@ -1,24 +1,21 @@
 # export DATABASE_URL='postgres://localhost:5432/
-
 from flask import Flask
+from datetime import datetime
 from flask import request, jsonify, escape
-from flask_sqlalchemy import SQLAlchemy  #import sqlite3
+from flask_sqlalchemy import SQLAlchemy             #import sqlite3
 db = SQLAlchemy()
-app = Flask(__name__)
-# app = flask.Flask(__name__) # coz, import style >>> import flask
+app = Flask(__name__)                               # app = flask.Flask(__name__) # coz, import style >>> import flask
 app.config["DEBUG"] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user_name:docpwd@IP:5432/db_name"
-db.init_app(app)
-# -------------import the others function/ psql::db-migrator
-from utils import ctest
-# from .calculator import sum1
-# #load_manuplate # ./../
+from sqlalchemy import text
+
+
+# --- import the others function/psql::db-migrator
+# from . import db 
+from utils import ctest                             # from .calculator import sum1 # #load_manuplate # ./../
 import os
 print(os.getcwd()) # print the pwd status
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user_name:docusr@IP:5432/db-migrator"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
 db.init_app(app)
 
 class spc_measure_point_config(db.Model): #Sojourn
@@ -82,8 +79,6 @@ class spc_measure_point_history(db.Model): #Sojourn
         # self.state
 
 
-
-
 #---------------------GET-----------------------
 @app.route('/', methods=['GET'])
 def home():
@@ -95,23 +90,24 @@ def home():
     <p>自我介绍为空。</p>
 {% endif %}  {# 大部分 Jinja 语句都需要声明关闭 #}
 '''
-@app.route('/', methods=['GET','POST','DELETE','UPDATE'])
+@app.route('/test', methods=['GET'])
 def index():
-    db.create_all()
+    # db.create_all()
     # Add data
-    testxxx = spc_measure_point_history('Max',8888,'', '', '','')
-    db.session.add(testxxx)
-    db.session.commit()
-    # Read data
-    # query = spc_measure_point_history.query.filter_by(value = 12).first()
-    # print(query.value)
+    # testxxx = spc_measure_point_history('Max',8888,'', '', '','')
+    # db.session.add(testxxx)
+    # db.session.commit()
+    #Read data
+    query = spc_measure_point_history.query.filter_by(value = 12).first()
+    print(query.value)
     # print(query.uuid)
     # sql_cmd =
     #     SELECT *
     #     FROM spc_measure_point_history
 
-    query_data = db.engine.execute(sql_cmd)
-    print(query_data)
+    # query_data = db.engine.execute(sql_cmd)
+    # result = db.engine.execute(text("select * from work_order;").execution_options(autocommit=True))
+    # print("result: ", result)
     return 'ok'
 
 
