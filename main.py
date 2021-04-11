@@ -93,9 +93,6 @@ def index():
     print(query_data)
     return 'ok'
 
-
-
-
     # SELECT spc_measure_point_config.name, spc_measure_point_history.value,(spc_measure_point_config.usl+spc_measure_point_config.std_value) AS USL, (spc_measure_point_config.std_value-spc_measure_point_config.lsl) AS LSL --,spc_measure_point_history.measure_object_id
 
     # FROM spc_measure_point_config  left OUTER JOIN spc_measure_point_history
