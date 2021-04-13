@@ -9,12 +9,16 @@ data_transforms = None
 
 
 def load_data(cls_file, log_file):
-    global classes, performance
+    global classes, megadata
+    # df = pd.read_json(r'file')
+    # djson = df.to_csv()
     with open(cls_file, "r") as f:
-        classes = f.read().split("\n")
+        djson = json.load(json_file)
+        # classes = f.read().split("\n")
     with open(log_file, "r") as f:
-        performance = f.read().split("\n")
-        
+        megadata = f.read().split("\n")
+
+
 def sum1(n):
   #n = [int(eval(i)) for i in input()]
   # print((n+1)*n/2)
@@ -65,7 +69,7 @@ def load_model(path):
 #         output_dict["success"] = True
 #     return flask.jsonify(output_dict), 200
 
-def performance(mylst,usl,lsl):
+def perform(mylst,usl,lsl):
     # Moving average:
 
     arr = np.array(mylst)
@@ -81,7 +85,7 @@ def performance(mylst,usl,lsl):
 
     output_dict = {"success": False}
     if flask.request.method == "GET":
-        output_dict["performance"] = performance
+        output_dict["perform"] = perform
         output_dict["success"] = True
     return flask.jsonify(output_dict), 200
 

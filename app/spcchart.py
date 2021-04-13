@@ -12,7 +12,7 @@ class SpcChart(object):
     def __init__(self, data, title=None, filename=None):
         self.data = data
         self.title = title
-        # self.filename = "{}.svg".format('workbook_name')
+        self.filename = "{}.svg".format('workbook_name')
 
     def render_to_file(self):
         line_chart = pygal.Line(style=CleanStyle)

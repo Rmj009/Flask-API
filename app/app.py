@@ -5,27 +5,25 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 import html          #import sqlite3
 db = SQLAlchemy()
-app = Flask(__name__,  static_url_path='')                               # app = flask.Flask(__name__) # coz, import style >>> import flask
+app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
 app.config["DEBUG"] = True
 from sqlalchemy import text
-
-
-# --- import the others function/psql::db-migrator
+"""
+import the others function
+"""
 # from . import db 
 # from utils import ctest
-from .calculator import perform # #load_manuplate # ./../
+from calculator import *  #load_manuplate # ./../
 from spcchart import *
-import os
-
+import os,sys,traceback
 from sqlalchemy import create_engine 
+##################CONFIGURATION#########################
 print(os.getcwd()) # print the pwd status
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
 engine = create_engine('postgresql://postgres:edge9527@localhost:5432/dev_tenant')
 connection = engine.connect()
 db.init_app(app)
-
-
 def test():
     print("kkk")
 
@@ -38,16 +36,13 @@ def test_u_l(u, l, v):
     else:
         print("ok")
 
-#---------------------GET-----------------------
-
-@app.route('/test', methods=['GET'])
+#----------------GET-------------------
+@app.route('/outputQurey', methods=['GET'])
 def index():
 
     test()
-
     result = db.engine.execute(text("select value FROM spc_measure_point_history;").execution_options(autocommit=True))
     print("result: ", result)
-
     results = connection.execute('select value FROM spc_measure_point_history;')
     id_count = results.first()[0]
     # sql_cmd = (
@@ -74,15 +69,15 @@ def index():
     #     a.append(d)
     # print("sql result: ", query_data)
 
-    return 'ok', result, #query_data #,id_count
+    return 'ok', result, id_count #query_data #,id_count
 
 
-@app.route("/performance", methods=['GET'])
-def performance():
+@app.route("/perform", methods=['GET'])
+def perform():
   output_dict = {"success": False}
   if request.method == "GET":
       # query params
-      arg_n = request.args.get('n')
+    #   arg_n = request.args.get('n') # try to request 'n'
       # body json
       body_json = request.get_json() #index() get the json from body
       paul = body_json['paul']
@@ -125,19 +120,46 @@ def performance():
 
 #-------ERROR Handling----------
 @app.errorhandler(404)
+# while cannot show the web-page, and print out following tips
 def page_not_found(e):
-    return "<h1>404</h1><p>The resource could not be found.</p>", 404
+    return "<h1>404</h1><p> <bold>4040404040</bold> </p>", 404
+
+def abort_msg(e):
+    """500 bad request for exception
+
+    Returns:
+        500 and msg which caused problems
+    """
+    error_class = e.__class__.__name__ # 引發錯誤的 class
+    detail = e.args[0] # 得到詳細的訊息
+    cl, exc, tb = sys.exc_info() # 得到錯誤的完整資訊 Call Stack
+    lastCallStack = traceback.extract_tb(tb)[-1] # 取得最後一行的錯誤訊息
+    fileName = lastCallStack[0] # 錯誤的檔案位置名稱
+    lineNum = lastCallStack[1] # 錯誤行數 
+    funcName = lastCallStack[2] # function 名稱
+    # generate the error message
+    errMsg = "Exception raise in file: {}, line {}, in {}: [{}] {}. Please contact whom in charge of project!".format(fileName, lineNum, funcName, error_class, detail)
+    # return 500 code
+    abort(500, errMsg)
 
 #-----Other module awaits--
+#############################
+######Factory module#########
+#############################
 # def dict_factory(cursor, row):
-#     d = {}
-#     for idx, col in enumerate(cursor.description):
-#         d[col[0]] = row[idx]
-#     return d
+    # d = {}
+    # for idx, col in enumerate(cursor.description):
+    #     d[col[0]] = row[idx]
+    # return d
 
+
+#-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html', title="page", jsonfile=json.dumps({"test": 123}))
+    try: 
+        return render_template('index.html', title="page", jsonfile=json.dumps({"test": 123}))  #{"test": 123}
+    except Exception as e:
+        abort_msg(e)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=5000)
