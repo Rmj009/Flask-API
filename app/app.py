@@ -17,7 +17,7 @@ from calculator import *  #load_manuplate # ./../
 from spcchart import *
 import os,sys,traceback
 from sqlalchemy import create_engine 
-##################CONFIGURATION#########################
+###########CONFIGURATION###################
 print(os.getcwd()) # print the pwd status
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
@@ -36,15 +36,67 @@ def test_u_l(u, l, v):
     else:
         print("ok")
 
+class PassGateway():
+    # @app.route('/login', methods=['GET', 'POST'])
+    # def login():
+    #     if request.method == 'GET':
+    #         return do_the_login()
+    #     else:
+    #         return show_the_login_form()
+
+    # @app.route("/predict", methods=["POST"])
+    # def predict():
+    #   output_dict = {"success": False}  
+    #   if Flask.request.method == "POST":
+    #     data = Flask.request.json  # 讀取 json
+    #   return Flask.jsonify(output_dict), 200 # 回傳json, http status code
+
+
+    #-------ERROR Handling----------
+    @app.errorhandler(404)
+    # while cannot show the web-page, and print out following tips
+    def page_not_found(e):
+        return "<h1>404</h1><p> <bold>4040404040</bold> </p>", 404
+
+    def abort_msg(e):
+        """500 bad request for exception
+
+        Returns:
+            500 and msg which caused problems
+        """
+        error_class = e.__class__.__name__ # 引發錯誤的 class
+        detail = e.args[0] # 得到詳細的訊息
+        cl, exc, tb = sys.exc_info() # 得到錯誤的完整資訊 Call Stack
+        lastCallStack = traceback.extract_tb(tb)[-1] # 取得最後一行的錯誤訊息
+        fileName = lastCallStack[0] # 錯誤的檔案位置名稱
+        lineNum = lastCallStack[1] # 錯誤行數 
+        funcName = lastCallStack[2] # function 名稱
+        # generate the error message
+        errMsg = "Exception raise in file: {}, line {}, in {}: [{}] {}. Please contact whom in charge of project!".format(fileName, lineNum, funcName, error_class, detail)
+        # return 500 code
+        abort(500, errMsg)
+
+    #-----Other module awaits--
+    #############################
+    ######Factory module#########
+    #############################
+    # def dict_factory(cursor, row):
+        # d = {}
+        # for idx, col in enumerate(cursor.description):
+        #     d[col[0]] = row[idx]
+        # return d
+
 #----------------GET-------------------
-@app.route('/outputQurey', methods=['GET'])
+@app.route('/query', methods=['GET'])
 def index():
 
     test()
-    result = db.engine.execute(text("select value FROM spc_measure_point_history;").execution_options(autocommit=True))
-    print("result: ", result)
-    results = connection.execute('select value FROM spc_measure_point_history;')
-    id_count = results.first()[0]
+    print("output: ", calc(mylst, usl, lsl))
+    results = calc(mylst, usl, lsl)
+    # result = db.engine.execute(text("select value FROM spc_measure_point_history;").execution_options(autocommit=True))
+    # print("result: ", result)
+    # results = connection.execute('select value FROM spc_measure_point_history;')
+    # id_count = results.first()[0]
     # sql_cmd = (
     #     '''
     # SELECT spc_measure_point_config.name, spc_measure_point_history.value,(spc_measure_point_config.usl+spc_measure_point_config.std_value) AS USL, (spc_measure_point_config.std_value-spc_measure_point_config.lsl) AS LSL --,spc_measure_point_history.measure_object_id
@@ -55,7 +107,7 @@ def index():
     # WHERE spc_measure_point_history.value NOT IN (-88888888)
 
     # order by spc_measure_point_config.uuid
-    #     '''
+    #     '''  
     # )
     # query_data = db.engine.execute(sql_cmd)
     # resultproxy = db_session.execute(query_data)
@@ -68,8 +120,8 @@ def index():
     #         d = {**d, **{column: value}}
     #     a.append(d)
     # print("sql result: ", query_data)
+    return 'ok',results #,id_count #query_data #
 
-    return 'ok', result, id_count #query_data #,id_count
 
 
 @app.route("/perform", methods=['GET'])
@@ -86,12 +138,12 @@ def perform():
       l = body_json['lowerLimit']
       v = body_json['value']
       test_u_l(u, l, v)
-    #   if v > u:
-    #     print("no 1")
-    #   elif v < l:
-    #     print("no 2")
-    #   else:
-    #     print("ok")
+      if v > u:
+        print("no 1")
+      elif v < l:
+        print("no 2")
+      else:
+        print("ok")
       
       print("paul: ",paul)
       print("body_json: ", body_json)
@@ -103,61 +155,21 @@ def perform():
 
 
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     if request.method == 'GET':
-#         return do_the_login()
-#     else:
-#         return show_the_login_form()
+# mylst = [2 for i in range(100)]
+mylst = np.linspace(1,100,30)
+usl = 18
+lsl = 10
+results = calc(mylst, usl, lsl)
+# print(results)
 
-# @app.route("/predict", methods=["POST"])
-# def predict():
-#   output_dict = {"success": False}  
-#   if Flask.request.method == "POST":
-#     data = Flask.request.json  # 讀取 json
-#   return Flask.jsonify(output_dict), 200 # 回傳json, http status code
-
-
-#-------ERROR Handling----------
-@app.errorhandler(404)
-# while cannot show the web-page, and print out following tips
-def page_not_found(e):
-    return "<h1>404</h1><p> <bold>4040404040</bold> </p>", 404
-
-def abort_msg(e):
-    """500 bad request for exception
-
-    Returns:
-        500 and msg which caused problems
-    """
-    error_class = e.__class__.__name__ # 引發錯誤的 class
-    detail = e.args[0] # 得到詳細的訊息
-    cl, exc, tb = sys.exc_info() # 得到錯誤的完整資訊 Call Stack
-    lastCallStack = traceback.extract_tb(tb)[-1] # 取得最後一行的錯誤訊息
-    fileName = lastCallStack[0] # 錯誤的檔案位置名稱
-    lineNum = lastCallStack[1] # 錯誤行數 
-    funcName = lastCallStack[2] # function 名稱
-    # generate the error message
-    errMsg = "Exception raise in file: {}, line {}, in {}: [{}] {}. Please contact whom in charge of project!".format(fileName, lineNum, funcName, error_class, detail)
-    # return 500 code
-    abort(500, errMsg)
-
-#-----Other module awaits--
-#############################
-######Factory module#########
-#############################
-# def dict_factory(cursor, row):
-    # d = {}
-    # for idx, col in enumerate(cursor.description):
-    #     d[col[0]] = row[idx]
-    # return d
-
+# d = dict([(x,results[x]) for x in range(len(results))])
+dd = dict(zip(keys, results)) # results turn into dict type
 
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
     try: 
-        return render_template('index.html', title="page", jsonfile=json.dumps({"test": 123}))  #{"test": 123}
+        return render_template('index.html', title="page", jsonfile=json.dumps(dd))  #{"test": 123}
     except Exception as e:
         abort_msg(e)
 
