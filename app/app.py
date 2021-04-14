@@ -132,9 +132,10 @@ def index():
     #     # build up the dictionary
     #         d = {**d, **{column: value}}
     #     a.append(d)
-    print("sql result: ",d)
+    # Query_value = [values for key,values in d.items()]
+    print("sql result: ", type(d))
     
-    return 'ok', #,result #,id_count #query_data #
+    return d#'ok', #,result #,id_count #query_data #
 
 @app.route("/perform", methods=['GET'])
 def perform():
@@ -172,15 +173,17 @@ mylst = np.linspace(1,100,30)
 usl = 18
 lsl = 10
 results = calc(mylst, usl, lsl) # print(results)
-resultD = dict(zip(keys, results)) # results turn into dict type
-index()
+resultD = dict(zip(keys, results)) , index()# results turn into dict type
+# map(dict, map(lambda t:zip(('num','char'),t), zip(list_nums,list_chars)))
+
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
     try: 
-        return user,render_template('index.html', title="page", jsonfile=json.dumps(resultD)) #{"test": 123}
+        return render_template('index.html', title="page", jsonfile=json.dumps(resultD)) #{"test": 123}
     except Exception as e:
-        abort_msg(e)
+        pass
+        # abort_msg(e)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=5000)
