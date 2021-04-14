@@ -61,26 +61,30 @@ def load_model(path):
 keys = ["Cp","Cpu","Cpk","Ppk"]
 def calc(mylst,usl,lsl):
     # Moving average:
-    arr = np.array(mylst)
-    arr = arr.ravel()
-    ngroup = 5 #input() #給使用者指定每組大小
-    ppkarr = np.array_split(arr,ngroup)# 將資料分組計算
-    ppkarrSig = [np.mean(i) for i in ppkarr]
-    # for i in ppkarr:
-    #     PpkXbararr = np.mean(i)
-    sigmaPpk = np.std(ppkarr)
-    sigmaCpk = np.std(arr)
-    m = np.mean(arr) #median
-    Cp = float(usl - lsl) / (6*sigmaCpk)
-    Cpu = float(usl - m) / (3*sigmaCpk)
-    Cpl = float(m - lsl) / (3*sigmaCpk)
-    Cpk = np.min([Cpu, Cpl])
-    ppu = float(usl - m) / (3*sigmaPpk)
-    ppl = float(m - lsl) / (3*sigmaPpk)
-    Ppk = np.min([ppu,ppl])
-    # print(Cp, Cpu, Cpk, Ppk)
-    return Cp, Cpu, Cpk, Ppk
+    try:
 
+        arr = np.array(mylst)
+        arr = arr.ravel()
+        ngroup = 5 #input() #給使用者指定每組大小
+        ppkarr = np.array_split(arr,ngroup)# 將資料分組計算
+        ppkarrSig = [np.mean(i) for i in ppkarr]
+        # for i in ppkarr:
+        #     PpkXbararr = np.mean(i)
+        sigmaPpk = np.std(ppkarr)
+        sigmaCpk = np.std(arr)
+        m = np.mean(arr) #median
+        Cp = float(usl - lsl) / (6*sigmaCpk)
+        Cpu = float(usl - m) / (3*sigmaCpk)
+        Cpl = float(m - lsl) / (3*sigmaCpk)
+        Cpk = np.min([Cpu, Cpl])
+        ppu = float(usl - m) / (3*sigmaPpk)
+        ppl = float(m - lsl) / (3*sigmaPpk)
+        Ppk = np.min([ppu,ppl])
+    # print(Cp, Cpu, Cpk, Ppk)
+        results = Cp, Cpu, Cpk, Ppk
+    except:
+        print("fix infinity")
+    return results # d = dict([(x,results[x]) for x in range(len(results))])
 
     # output_dict = {"success": False}
     # if flask.request.method == "GET":

@@ -7,7 +7,7 @@ import html          #import sqlite3
 db = SQLAlchemy()
 app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
 app.config["DEBUG"] = True
-from sqlalchemy import text
+from sqlalchemy.sql import text
 """
 import the others function
 """
@@ -89,14 +89,6 @@ class PassGateway():
 #----------------GET-------------------
 @app.route('/query', methods=['GET'])
 def index():
-
-    test()
-    print("output: ", calc(mylst, usl, lsl))
-    results = calc(mylst, usl, lsl)
-    # result = db.engine.execute(text("select value FROM spc_measure_point_history;").execution_options(autocommit=True))
-    # print("result: ", result)
-    # results = connection.execute('select value FROM spc_measure_point_history;')
-    # id_count = results.first()[0]
     # sql_cmd = (
     #     '''
     # SELECT spc_measure_point_config.name, spc_measure_point_history.value,(spc_measure_point_config.usl+spc_measure_point_config.std_value) AS USL, (spc_measure_point_config.std_value-spc_measure_point_config.lsl) AS LSL --,spc_measure_point_history.measure_object_id
@@ -106,23 +98,43 @@ def index():
 
     # WHERE spc_measure_point_history.value NOT IN (-88888888)
 
-    # order by spc_measure_point_config.uuid
+    # order by spc_measure_point_config.uuid;
     #     '''  
     # )
-    # query_data = db.engine.execute(sql_cmd)
-    # resultproxy = db_session.execute(query_data)
-    # # [{column: value for column, value in rowproxy.items()} for rowproxy in resultproxy]
+    sql_cmd = (
+        """
+        SELECT value FROM spc_measure_point_history
+        WHERE value NOT IN (-88888888);
+        """
+    )
+    # test()
+    # result = db.engine.execute(text("sql_cmd").execution_options(autocommit=True))
+    # print("result: ", result)
+    # # user = db.session.query().from_statement(text(sql_cmd)).params(name="").all()
+    # method_a starts a transaction and calls method_b
+    def method_a(connection):
+        with connection.begin():  # open a transaction
+            method_b(connection)
+
+    # method_b also starts a transaction
+    def method_b(connection):
+        with connection.begin(): # open a transaction - this runs in the context of method_a's transaction
+            connection.execute(sql_cmd)
+    
+
+    # # result = connection.execute(sql_cmd).first()[0]
+    resultproxy = engine.execute(sql_cmd)
+    d = [{column: value for column, value in row.items()} for row in resultproxy] # fetch all value
     # d, a = {}, []
-    # for rowproxy in resultproxy:
-    # # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
-    #     for column, value in rowproxy.items():
+    # for row in resultproxy:
+    # # row.items() returns an array like [(key0, value0), (key1, value1)]
+    #     for column, value in row.items():
     #     # build up the dictionary
     #         d = {**d, **{column: value}}
     #     a.append(d)
-    # print("sql result: ", query_data)
-    return 'ok',results #,id_count #query_data #
-
-
+    print("sql result: ",d)
+    
+    return 'ok', #,result #,id_count #query_data #
 
 @app.route("/perform", methods=['GET'])
 def perform():
@@ -159,17 +171,14 @@ def perform():
 mylst = np.linspace(1,100,30)
 usl = 18
 lsl = 10
-results = calc(mylst, usl, lsl)
-# print(results)
-
-# d = dict([(x,results[x]) for x in range(len(results))])
-dd = dict(zip(keys, results)) # results turn into dict type
-
+results = calc(mylst, usl, lsl) # print(results)
+resultD = dict(zip(keys, results)) # results turn into dict type
+index()
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
     try: 
-        return render_template('index.html', title="page", jsonfile=json.dumps(dd))  #{"test": 123}
+        return user,render_template('index.html', title="page", jsonfile=json.dumps(resultD)) #{"test": 123}
     except Exception as e:
         abort_msg(e)
 
