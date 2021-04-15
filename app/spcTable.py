@@ -1,9 +1,21 @@
+from flask import Flask, request, render_template, abort, url_for, json, jsonify, escape
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import text
+from sqlalchemy.sql import text
+from calculator import *  #load_manuplate # ./../
+from sqlalchemy import create_engine 
 db = SQLAlchemy()
-
+app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
+app.config["DEBUG"] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
+engine = create_engine('postgresql://postgres:edge9527@localhost:5432/dev_tenant')
+connection = engine.connect()
+db.init_app(app)
 """
+# app.config['SQLALCHEMY_DATABASE_URI'] = [DB_TYPE]+[DB_CONNECTOR]://[USERNAME]:[PASSWORD]@[HOST]:[PORT]/[DB_NAME]
+
 Definition of the table format
 1. spc_measure_point_config
 2. spc_measure_point_history
@@ -103,3 +115,49 @@ class spc_measure_point_history(db.Model): #Sojourn
         self.measure_object_id = measure_object_id
         self.spc_measure_instrument_uuid = spc_measure_instrument_uuid
         # self.state
+
+def qquery():
+     # sql_cmd = (
+    #     '''
+    # SELECT spc_measure_point_config.name, spc_measure_point_history.value,(spc_measure_point_config.usl+spc_measure_point_config.std_value) AS USL, (spc_measure_point_config.std_value-spc_measure_point_config.lsl) AS LSL --,spc_measure_point_history.measure_object_id
+
+    # FROM spc_measure_point_config  left OUTER JOIN spc_measure_point_history
+    # ON spc_measure_point_config.uuid = spc_measure_point_history.spc_measure_point_config_uuid
+
+    # WHERE spc_measure_point_history.value NOT IN (-88888888)
+
+    # order by spc_measure_point_config.uuid;
+    #     '''  
+    # )
+    sql_cmd = (
+        """
+        SELECT value FROM spc_measure_point_history
+        WHERE value NOT IN (-88888888);
+        """
+    )
+    # method_a starts a transaction and calls method_b
+    def method_a(connection):
+        with connection.begin():  # open a transaction
+            method_b(connection)
+
+    # method_b also starts a transaction
+    def method_b(connection):
+        with connection.begin(): # open a transaction - this runs in the context of method_a's transaction
+            connection.execute(sql_cmd)
+    #-----------------------------------------------------------------
+    # # result = connection.execute(sql_cmd).first()[0]
+    # result = db.engine.execute(text("sql_cmd").execution_options(autocommit=True))
+    # # user = db.session.query().from_statement(text(sql_cmd)).params(name="").all()
+    #-----------------------------------------------------------------
+    resultproxy = engine.execute(sql_cmd)
+    d = [{column: value for column, value in row.items()} for row in resultproxy] # fetch all item
+    # d, a = {}, []
+    # for row in resultproxy:
+    # # row.items() returns an array like [(key0, value0), (key1, value1)]
+    #     for column, value in row.items():
+    #     # build up the dictionary
+    #         d = {**d, **{column: value}}
+    #     a.append(d)
+    Qry = [item['value'] for item in d] # fetch all value in item
+    print(Qry)
+    return Qry #'ok', #,result

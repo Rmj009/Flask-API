@@ -5,67 +5,69 @@ import statistics as stat
 
 data_transforms = None
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = [DB_TYPE]+[DB_CONNECTOR]://[USERNAME]:[PASSWORD]@[HOST]:[PORT]/[DB_NAME]
-
-
-def load_data(cls_file, log_file):
-    global classes, megadata
-    # df = pd.read_json(r'file')
-    # djson = df.to_csv()
-    with open(cls_file, "r") as f:
-        djson = json.load(json_file)
-        # classes = f.read().split("\n")
-    with open(log_file, "r") as f:
-        megadata = f.read().split("\n")
-
-def load_manuplate():
-    global data_transform #JSON to NUMPY
-    # df = pd.read_csv(workbook_name.csv, sep=',',header=0)
-    # nmp = df.to_numpy()
-    trendObj = {
-    'all_vals': nmp[:,11],
-    'format_1': np.zeros(len(nmp[:,11])),
-    'format_2': np.zeros(len(nmp[:,11])),
-    'format_3': np.zeros(len(nmp[:,11])),
-    'format_4': np.zeros(len(nmp[:,11]))
-    }
-    return nmp, trendObj
-
-def load_model(path):
-    pass
-    # global model
-    # model = torch.load(path).to(device)
-
+# def load_data(cls_file, log_file):
+#     global classes, megadata
+#     # df = pd.read_json(r'file')
+#     # djson = df.to_csv()
+#     with open(cls_file, "r") as f:
+#         djson = json.load(json_file)
+#         # classes = f.read().split("\n")
+#     with open(log_file, "r") as f:
+#         megadata = f.read().split("\n")
+# def load_manuplate():
+#     global data_transform #JSON to NUMPY
+#     # df = pd.read_csv(workbook_name.csv, sep=',',header=0)
+#     # nmp = df.to_numpy()
+#     trendObj = {
+#     'all_vals': nmp[:,11],
+#     'format_1': np.zeros(len(nmp[:,11])),
+#     'format_2': np.zeros(len(nmp[:,11])),
+#     'format_3': np.zeros(len(nmp[:,11])),
+#     'format_4': np.zeros(len(nmp[:,11]))
+#     }
+#     return nmp, trendObj
+# def load_model(path):
+#     pass
+# # global model
+# # model = torch.load(path).to(device)
 
 # @app.route("/predict", methods=["POST"])
 # def metrics():
-
 #     output_dict = {"success": False}
 #     if flask.request.method == "POST":
 #         data = flask.request.json
-        
-#         # read the image in PIL format
-#         response = requests.get(data["image"])
-#         image = Image.open(BytesIO(response.content))
-
-#         # transform image
-#         image_tensor = data_transforms(image).float()
-#         image_tensor = image_tensor.unsqueeze_(0).to(device)
-
-#         # predict and max
-#         output = model(image_tensor)
-#         _, predicted = torch.max(output.data, 1)
-#         output_dict["predictions"] = classes[predicted]
+#     output_dict = {"success": False}
+#     if flask.request.method == "GET":
+#         output_dict["calc"] = calc
 #         output_dict["success"] = True
 #     return flask.jsonify(output_dict), 200
-keys = ["Cp","Cpu","Cpk","Ppk"]
+        
+#         # read the image in PIL format
+#     response = requests.get(data["image"])
+#     image = Image.open(BytesIO(response.content))
+
+#     # transform image
+#     image_tensor = data_transforms(image).float()
+#     image_tensor = image_tensor.unsqueeze_(0).to(device)
+
+#     # predict and max
+#     output = model(image_tensor)
+#     _, predicted = torch.max(output.data, 1)
+#     output_dict["predictions"] = classes[predicted]
+#     output_dict["success"] = True
+#     return flask.jsonify(output_dict), 200
+
+
 def calc(mylst,usl,lsl):
     # Moving average:
+    # global results
+    ANS = 0,0,0,0
     try:
-
         arr = np.array(mylst)
+        print("arr: ",arr)
         arr = arr.ravel()
-        ngroup = 5 #input() #給使用者指定每組大小
+        print("ravel, " ,arr)
+        ngroup = 10 #input() #給使用者指定每組大小
         ppkarr = np.array_split(arr,ngroup)# 將資料分組計算
         ppkarrSig = [np.mean(i) for i in ppkarr]
         # for i in ppkarr:
@@ -80,17 +82,12 @@ def calc(mylst,usl,lsl):
         ppu = float(usl - m) / (3*sigmaPpk)
         ppl = float(m - lsl) / (3*sigmaPpk)
         Ppk = np.min([ppu,ppl])
-    # print(Cp, Cpu, Cpk, Ppk)
-        results = Cp, Cpu, Cpk, Ppk
-    except:
+        ANS = Cp, Cpu, Cpk, Ppk
+    # print(Cp, Cpu, Cpk, Ppk) # d = dict([(x,ANS[x]) for x in range(len(ANS))])
+    except  Exception as e: # work on python 2.x
+        print('Failed to upload to ftp: '+ str(e))
         print("fix infinity")
-    return results # d = dict([(x,results[x]) for x in range(len(results))])
-
-    # output_dict = {"success": False}
-    # if flask.request.method == "GET":
-    #     output_dict["calc"] = calc
-    #     output_dict["success"] = True
-    # return flask.jsonify(output_dict), 200
+    return ANS #Cp, Cpu, Cpk, Ppk
 
 def testRule1(obj,newNum, mean, sd):
 
