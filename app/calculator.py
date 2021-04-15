@@ -5,15 +5,15 @@ import statistics as stat
 
 data_transforms = None
 
-# def load_data(cls_file, log_file):
-#     global classes, megadata
-#     # df = pd.read_json(r'file')
-#     # djson = df.to_csv()
-#     with open(cls_file, "r") as f:
-#         djson = json.load(json_file)
-#         # classes = f.read().split("\n")
-#     with open(log_file, "r") as f:
-#         megadata = f.read().split("\n")
+def load_data(cls_file, log_file):
+    global classes, megadata
+    # df = pd.read_json(r'file')
+    # djson = df.to_csv()
+    with open(cls_file, "r") as f:
+        djson = json.load(json_file)
+        # classes = f.read().split("\n")
+    with open(log_file, "r") as f:
+        megadata = f.read().split("\n")
 # def load_manuplate():
 #     global data_transform #JSON to NUMPY
 #     # df = pd.read_csv(workbook_name.csv, sep=',',header=0)
@@ -64,15 +64,14 @@ def calc(mylst,usl,lsl):
     ANS = 0,0,0,0
     try:
         arr = np.array(mylst)
-        print("arr: ",arr)
+        # print("arr: ",arr)
         arr = arr.ravel()
-        print("ravel, " ,arr)
+        # print("ravel, " ,arr)
         ngroup = 10 #input() #給使用者指定每組大小
         ppkarr = np.array_split(arr,ngroup)# 將資料分組計算
         ppkarrSig = [np.mean(i) for i in ppkarr]
-        # for i in ppkarr:
-        #     PpkXbararr = np.mean(i)
-        sigmaPpk = np.std(ppkarr)
+        sigmaPpk = np.std(ppkarrSig)
+        # print("sigmaPpk: ",sigmaPpk)
         sigmaCpk = np.std(arr)
         m = np.mean(arr) #median
         Cp = float(usl - lsl) / (6*sigmaCpk)

@@ -108,7 +108,7 @@ def perform():
     resultD = dict(zip(keys, resultA))  #resultA turn into dict type
   # map(dict, map(lambda t:zip(('num','char'),t), zip(list_nums,list_chars))) # [values for key,values in d.items()]
     print("sql result: ", resultD)
-    return jsonify(resultD), 200
+    return resultD#,jsonify(resultD), 200
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():

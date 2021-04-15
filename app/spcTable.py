@@ -159,5 +159,5 @@ def qquery():
     #         d = {**d, **{column: value}}
     #     a.append(d)
     Qry = [item['value'] for item in d] # fetch all value in item
-    print(Qry)
+    # print(Qry)
     return Qry #'ok', #,result
