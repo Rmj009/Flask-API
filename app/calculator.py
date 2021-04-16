@@ -2,66 +2,22 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import statistics as stat
+from spcTable import *
 
 data_transforms = None
 
-def load_data(cls_file, log_file):
-    global classes, megadata
-    # df = pd.read_json(r'file')
-    # djson = df.to_csv()
-    with open(cls_file, "r") as f:
-        djson = json.load(json_file)
-        # classes = f.read().split("\n")
-    with open(log_file, "r") as f:
-        megadata = f.read().split("\n")
-# def load_manuplate():
-#     global data_transform #JSON to NUMPY
-#     # df = pd.read_csv(workbook_name.csv, sep=',',header=0)
-#     # nmp = df.to_numpy()
-#     trendObj = {
-#     'all_vals': nmp[:,11],
-#     'format_1': np.zeros(len(nmp[:,11])),
-#     'format_2': np.zeros(len(nmp[:,11])),
-#     'format_3': np.zeros(len(nmp[:,11])),
-#     'format_4': np.zeros(len(nmp[:,11]))
-#     }
-#     return nmp, trendObj
-# def load_model(path):
-#     pass
-# # global model
-# # model = torch.load(path).to(device)
-
-# @app.route("/predict", methods=["POST"])
-# def metrics():
-#     output_dict = {"success": False}
-#     if flask.request.method == "POST":
-#         data = flask.request.json
-#     output_dict = {"success": False}
-#     if flask.request.method == "GET":
-#         output_dict["calc"] = calc
-#         output_dict["success"] = True
-#     return flask.jsonify(output_dict), 200
-        
-#         # read the image in PIL format
-#     response = requests.get(data["image"])
-#     image = Image.open(BytesIO(response.content))
-
-#     # transform image
-#     image_tensor = data_transforms(image).float()
-#     image_tensor = image_tensor.unsqueeze_(0).to(device)
-
-#     # predict and max
-#     output = model(image_tensor)
-#     _, predicted = torch.max(output.data, 1)
-#     output_dict["predictions"] = classes[predicted]
-#     output_dict["success"] = True
-#     return flask.jsonify(output_dict), 200
-
+# def load_data(cls_file, log_file):
+#     global classes, megadata
+#     # df = pd.read_json(r'file')
+#     # djson = df.to_csv()
+#     with open(cls_file, "r") as f:
+#         djson = json.load(json_file)
+#         # classes = f.read().split("\n")
+#     with open(log_file, "r") as f:
+#         megadata = f.read().split("\n")
 
 def calc(mylst,usl,lsl):
-    # Moving average:
-    # global results
-    ANS = 0,0,0,0
+    ANS = 0,0,0,0 # return ans once exception occur
     try:
         arr = np.array(mylst)
         # print("arr: ",arr)
@@ -82,11 +38,10 @@ def calc(mylst,usl,lsl):
         ppl = float(m - lsl) / (3*sigmaPpk)
         Ppk = np.min([ppu,ppl])
         ANS = Cp, Cpu, Cpk, Ppk
-    # print(Cp, Cpu, Cpk, Ppk) # d = dict([(x,ANS[x]) for x in range(len(ANS))])
+        return ANS #Cp, Cpu, Cpk, Ppk
     except  Exception as e: # work on python 2.x
         print('Failed to upload to ftp: '+ str(e))
         print("fix infinity")
-    return ANS #Cp, Cpu, Cpk, Ppk
 
 def testRule1(obj,newNum, mean, sd):
 
@@ -162,22 +117,21 @@ def plotAxlines(array):
         plt.axhline(y=lower, linewidth=0.5, color=color)
     return
 
+# df=pd.read_csv('workbook_name.csv', sep=',',header=0); nmp = df.to_numpy()
+ #nmp[:,11]
 
-"""
-df=pd.read_csv('workbook_name.csv', sep=',',header=0); nmp = df.to_numpy() ; ptV = nmp[:,11]
+# def plotQuery():
+ptV = qquery()
 trendObj = {
-    'all_vals': nmp[:,11],
-    'format_1': np.zeros(len(nmp[:,11])),
-    'format_2': np.zeros(len(nmp[:,11])),
-    'format_3': np.zeros(len(nmp[:,11])),
-    'format_4': np.zeros(len(nmp[:,11]))
-}
-
-# PLOT & PRINT
+'all_vals': ptV,
+'format_1': np.zeros(len(ptV)),
+'format_2': np.zeros(len(ptV)),
+'format_3': np.zeros(len(ptV)),
+'format_4': np.zeros(len(ptV))}
 
 plt.plot(trendObj['all_vals'])
 mark = 10.0
-plt.figure(figsize=(25,10))
+plt.figure(figsize=(10,5))
 plt.plot(trendObj['all_vals'], color='red',markevery=format_arr(1), ls="", marker='x',mfc = 'none', mec='red', label="Rule1", markersize=mark*0.5)
 plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(2), ls="", marker='o', mfc='none',mec='blue',label="Rule2", markersize=mark*1)
 plt.plot(trendObj['all_vals'], color='brown',markevery=format_arr(3), ls="", marker='p', mfc='none',mec='brown',label="Rule3", markersize=mark*1.5)
@@ -185,7 +139,9 @@ plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(4), ls="", mark
 plt.plot(trendObj['all_vals'], color='#81B5CB', ls="", marker="o", markersize=mark)
 plotAxlines(trendObj['all_vals'])
 plt.legend()
-plt.ylim(0,25)
-#plt.savefig('control-chart.png')
-plt.show()
-"""
+plt.ylim(0,0.003)
+# plt.plot(ptV)
+plt.savefig('static/control-chart.png')
+# return plt.show()
+
+# plotQuery()

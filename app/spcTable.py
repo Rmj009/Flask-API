@@ -116,8 +116,10 @@ class spc_measure_point_history(db.Model): #Sojourn
         self.spc_measure_instrument_uuid = spc_measure_instrument_uuid
         # self.state
 
+# query = spc_measure_point_history.query.filter_by(spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da').first()
+
 def qquery():
-     # sql_cmd = (
+    # sql_cmd = (
     #     '''
     # SELECT spc_measure_point_config.name, spc_measure_point_history.value,(spc_measure_point_config.usl+spc_measure_point_config.std_value) AS USL, (spc_measure_point_config.std_value-spc_measure_point_config.lsl) AS LSL --,spc_measure_point_history.measure_object_id
 
@@ -131,10 +133,19 @@ def qquery():
     # )
     sql_cmd = (
         """
-        SELECT value FROM spc_measure_point_history
-        WHERE value NOT IN (-88888888);
+        SELECT value, spc_measure_point_config_uuid FROM spc_measure_point_history
+        WHERE value NOT IN (-88888888) and spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da';
+
         """
-    )
+        )
+    # sql_cmd = (
+    #     """
+    #     select * 
+    #     from spc_measure_point_config 
+    #     where uuid = '57016b97-2355-460f-b673-6512d8ed00da'
+    #     """
+    # )
+
     # method_a starts a transaction and calls method_b
     def method_a(connection):
         with connection.begin():  # open a transaction
@@ -148,9 +159,12 @@ def qquery():
     # # result = connection.execute(sql_cmd).first()[0]
     # result = db.engine.execute(text("sql_cmd").execution_options(autocommit=True))
     # # user = db.session.query().from_statement(text(sql_cmd)).params(name="").all()
+    # Read data
+    
+    # print(query)
     #-----------------------------------------------------------------
     resultproxy = engine.execute(sql_cmd)
-    d = [{column: value for column, value in row.items()} for row in resultproxy] # fetch all item
+    response = [{column: value for column, value in row.items()} for row in resultproxy] # querydata transfer while fetch all item
     # d, a = {}, []
     # for row in resultproxy:
     # # row.items() returns an array like [(key0, value0), (key1, value1)]
@@ -158,6 +172,7 @@ def qquery():
     #     # build up the dictionary
     #         d = {**d, **{column: value}}
     #     a.append(d)
-    Qry = [item['value'] for item in d] # fetch all value in item
+    Qry = [item['value'] for item in response] # fetch all value in item
     # print(Qry)
+    
     return Qry #'ok', #,result
