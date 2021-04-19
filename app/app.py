@@ -1,6 +1,6 @@
 # export DATABASE_URL='postgres://localhost:5432/
 from datetime import datetime
-from flask import Flask, request, render_template, abort, url_for, json, jsonify, escape
+from flask import Flask, request, render_template, abort, url_for, redirect, json, jsonify, escape
 from flask_sqlalchemy import SQLAlchemy
 import json,html
 app = Flask(__name__, static_url_path='') # coz, import style >>> import flask
@@ -81,6 +81,21 @@ def home():
         return render_template('index.html', title="spc_show", jsonfile=json.dumps(perform()) )
     except Exception as e:
         pass
+
+
+@app.route('/loginQ', methods=['GET', 'POST']) 
+def loginQ():
+    if request.method == 'POST': 
+        return 'SpcDashboard ' + request.values['specificChart'] #redirect(url_for('hello', specificChart=request.form.get('specificChart')))
+    # return render_template('loginQ.html')
+
+    return "<form method='post' action='/loginQ'><input type='text' name='specificChart' />" \
+            "</br>" \
+           "<button type='submit'>Submit</button></form>"
+
+# @app.route('/hello/<specificChart>')
+# def hello(specificChart):
+#     return render_template('helloDashboard.html', username=specificChart)
 
 
 if __name__ == "__main__":

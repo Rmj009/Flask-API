@@ -19,6 +19,13 @@ db.init_app(app)
 Definition of the table format
 1. spc_measure_point_config
 2. spc_measure_point_history
+
+user params input: 
+* spc_measure point config UUID, work order op history uuid
+* startTime 開工 
+* endTime 完工
+python output:
+cpl,cp,cpk,ppk,..
 """
 
 #-----------------------------------------------

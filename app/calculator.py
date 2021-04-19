@@ -39,8 +39,8 @@ def calc(mylst,usl,lsl):
         Ppk = np.min([ppu,ppl])
         ANS = Cp, Cpu, Cpk, Ppk
         return ANS #Cp, Cpu, Cpk, Ppk
-    except  Exception as e: # work on python 2.x
-        print('Failed to upload to ftp: '+ str(e))
+    except  ZeroDivisionError() as e: # work on python 2.x
+        print('sigma zero result from variance: '+ str(e))
         print("fix infinity")
 
 def testRule1(obj,newNum, mean, sd):
