@@ -63,13 +63,14 @@ def index():
       print("body_json: ", body_json)   
     return 'ok' #,result
 
-@app.route("/perform", methods=['GET'])
-def perform():
-    # resultCapablity = qquery()
+@app.route("/capability", methods=['GET'])
+def capability():
+  #  username = request.args.get('username')
+  #  password = request.args.get('password')
     usl = 100 # concatenate the user query
-    lsl = 10
+    lsl = 10 #吃資料庫usl lsl 
     keys = ["Cp","Cpu","Cpk","Ppk"]
-    resultCapablity = dict(zip(keys, calc(mylst = qquery(), usl=usl, lsl=lsl)))
+    resultCapablity = dict(zip(keys, calc(mylst = queryfunc(), usl=usl, lsl=lsl)))
   # map(dict, map(lambda t:zip(('num','char'),t), zip(list_nums,list_chars))) # [values for key,values in d.items()]
     print("Capablity result: ", resultCapablity)
     # resultImage = plotQuery()
@@ -78,7 +79,7 @@ def perform():
 @app.route('/', methods=['GET'])
 def home():
     try: 
-        return render_template('index.html', title="spc_show", jsonfile=json.dumps(perform()) )
+        return render_template('index.html', title="spc_show", jsonfile=json.dumps(capability()()) )
     except Exception as e:
         pass
 

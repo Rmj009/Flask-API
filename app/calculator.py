@@ -121,7 +121,7 @@ def plotAxlines(array):
  #nmp[:,11]
 
 # def plotQuery():
-ptV = qquery()
+ptV = queryfunc()
 trendObj = {
 'all_vals': ptV,
 'format_1': np.zeros(len(ptV)),

@@ -3,10 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import text
 from sqlalchemy.sql import text
-from sqlalchemy import select
-from calculator import *  #load_manuplate # ./../
+from sqlalchemy import select,column,join
 from sqlalchemy import create_engine 
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, aliased
 db = SQLAlchemy()
 app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
 app.config["DEBUG"] = True
@@ -34,7 +33,7 @@ cpl,cp,cpk,ppk,..
 """
 
 #-----------------------------------------------
-class spc_measure_point_config(db.Model): #Sojourn
+class spc_measure_point_config(db.Model): #Sojourn 1
     __tablename__='spc_measure_point_config'
     uuid = db.Column(
         db.String(30),unique = True,  primary_key = True, nullable = False)
@@ -57,16 +56,14 @@ class spc_measure_point_config(db.Model): #Sojourn
         db.String(8), unique=False, nullable=False)
     mode = db.Column(
         db.String(8), unique=False, nullable=False)
-    std_value = db.Column(db.Integer, nullable=False)
-    usl = db.Column(db.Integer, nullable=False)
-    lsl = db.Column(db.Integer, nullable=False)
-    measure_amount = db.Column(db.Integer, nullable=False)
-    range_spec = db.Column(db.Integer, nullable=False)
-    sample_number = db.Column(db.Integer, nullable=False)
+    std_value = db.Column(db.Float, nullable=False)
+    usl = db.Column(db.Float, nullable=False)
+    lsl = db.Column(db.Float, nullable=False)
+    measure_amount = db.Column(db.Float, nullable=False)
+    range_spec = db.Column(db.Float, nullable=False)
+    sample_number = db.Column(db.Float, nullable=False)
     rules = db.Column(
         db.String(64), nullable=False)
-    # state = db.Column(
-    #     db.String(30), unique=True, nullable=False)
 
     def __init__(
         self,uuid,create_time,update_time,route_uuid,operation_uuid,
@@ -90,9 +87,7 @@ class spc_measure_point_config(db.Model): #Sojourn
         self.range_spec = range_spec
         self.sample_number = sample_number
         self.rules = rules
-        # self.state
-
-class spc_measure_point_history(db.Model): #Sojourn
+class spc_measure_point_history(db.Model): #Sojourn 2
     __tablename__='spc_measure_point_history'
     uuid = db.Column(
         db.String(30),unique = True,  primary_key = True, nullable = False)
@@ -107,14 +102,12 @@ class spc_measure_point_history(db.Model): #Sojourn
         db.String(50), unique=False, nullable=False)
     spc_measure_point_config_uuid = db.Column(
         db.String(50), unique=False, nullable=False)
-    value = db.Column(db.Integer, nullable=False)
-    measure_object_id = db.Column(db.Integer, nullable=False)
+    value = db.Column(db.Float, nullable=False) #float?
+    measure_object_id = db.Column(db.Float, nullable=False)
     spc_measure_instrument_uuid = db.Column(
         db.String(50), unique=False, nullable=False)
-    # state = db.Column(
-    #     db.String(30), unique=True, nullable=False)
     
-    def __repr__(self,uuid,work_order_op_history_uuid,tenant_id,create_time,update_time,worker_id,spc_measure_point_config_uuid,value,measure_object_id,spc_measure_instrument_uuid):
+    def __init__(self,uuid,work_order_op_history_uuid,tenant_id,create_time,update_time,worker_id,spc_measure_point_config_uuid,value,measure_object_id,spc_measure_instrument_uuid):
         self.uuid = uuid
         self.work_order_op_history_uuid = work_order_op_history_uuid
         self.tenant_id = tenant_id
@@ -126,76 +119,137 @@ class spc_measure_point_history(db.Model): #Sojourn
         self.measure_object_id = measure_object_id
         self.spc_measure_instrument_uuid = spc_measure_instrument_uuid
         # self.state
+class work_order_op_history(db.Model): #Sojourn 3
+    __tablename__='work_order_op_history'
+    uuid = db.Column(
+        db.String(30),unique = True,  primary_key = True, nullable = False)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+    update_time = db.Column(
+        db.DateTime, onupdate=datetime.now, default=datetime.now)
+    work_order_id = db.Column(
+        db.String(30), unique=False, nullable=False)
+    shift = db.Column(db.Float, nullable=False)
+    start_time = db.Column(db.DateTime, default=datetime.now)
+    end_time = db.Column(
+        db.DateTime, onupdate=datetime.now, default=datetime.now)
+    producer_number = db.Column(
+        db.String(50), unique=False, nullable=False)
+    producer_name = db.Column(
+        db.String(50), unique=False, nullable=False)
+    qty = db.Column(db.Float, nullable=False)
+    description = db.Column(
+        db.String(255), nullable=False)
+    device_name = db.Column(
+        db.String(50), unique=False, nullable=False)
+    good = db.Column(db.Float, nullable=False)
+    defect = db.Column(db.Float, nullable=False)
+    std_tp = db.Column(db.Float, nullable=False)
+    std_ts = db.Column(db.Float, nullable=False)
 
-# query = spc_measure_point_history.query.filter_by(spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da').first()
-# print(query)
+    worker_uuid = db.Column(
+        db.String(30), unique=False, nullable=False)
+    work_order_uuid = db.Column(
+        db.String(30), unique=False, nullable=False)
+    operation_uuid = db.Column(
+        db.String(30), unique=False, nullable=False)
+    def __init__(self,uuid,create_time,update_time,work_order_id,start_time,end_time,producer_number,producer_name,qty,description,device_name,good,defect,std_tp,std_ts,std_work_time,operation_uuid):
+        self.uuid = uuid
+        self.create_time = create_time
+        self.update_time = update_time
+        self.work_order_id = work_order_id
+        self.shift = shift
+        self.start_time = start_time
+        self.end_time = end_time
+        self.producer_number = producer_number
+        self.producer_name = producer_name
+        self.qty = qty
+        self.description = description
+        self.device_name = device_name
+        self.good = good
+        self.defect = defect
+        self.std_tp = std_tp
+        self.std_ts = std_ts
+        self.std_work_time = std_work_time
+        self.worker_uuid = worker_uuid
+        self.work_order_uuid = work_order_uuid
+        self.operation_uuid = operation_uuid
 
-stmt = select(spc_measure_point_history.work_order_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
-# QspcHistory = select(spc_measure_point_history.work_oder_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
-# sql轉譯
-# print(result)
-
-# for row in session.execute(stmt):
-#         print(row)
-#         count += 1
-queryResult = [row for row in session.execute(stmt)]
-print("stms: ", queryResult)
-
-def qquery():
+def queryfunc(): # start_time,end_time,work_order_op_history_uuid,spc_measure_point_config_uuid
+    # aliazed the table
+    table_config = aliased(spc_measure_point_config) # operation_uuid <=> table_work_order
+    table_history = aliased(spc_measure_point_history) # work_order_op_history_uuid <=> table_work_order.uuid
+    table_work_order = aliased(work_order_op_history) # operation_uuid <=> table_config
     # sql_cmd = (
-    #     '''
-    # SELECT spc_measure_point_config.name, spc_measure_point_history.value,(spc_measure_point_config.usl+spc_measure_point_config.std_value) AS USL, (spc_measure_point_config.std_value-spc_measure_point_config.lsl) AS LSL --,spc_measure_point_history.measure_object_id
+    #     """
+    #     SELECT value, spc_measure_point_config_uuid FROM spc_measure_point_history
+    #     WHERE value NOT IN (-88888888) and spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da';
 
-    # FROM spc_measure_point_config  left OUTER JOIN spc_measure_point_history
-    # ON spc_measure_point_config.uuid = spc_measure_point_history.spc_measure_point_config_uuid
-
-    # WHERE spc_measure_point_history.value NOT IN (-88888888)
-
-    # order by spc_measure_point_config.uuid;
-    #     '''  
-    # )
-    sql_cmd = (
-        """
-        SELECT value, spc_measure_point_config_uuid FROM spc_measure_point_history
-        WHERE value NOT IN (-88888888) and spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da';
-
-        """
-        )
+    #     """
+    #     )
     # sql_cmd = (
     #     """
     #     select * 
     #     from spc_measure_point_config 
     #     where uuid = '57016b97-2355-460f-b673-6512d8ed00da'
     #     """
+    # # )
+    # sql_cmd = (
+    #     """
+    #     SELECT work_order_id 
+    #     FROM work_order_op_history
+    #     WHERE work_order_id == 11024776
+    #     """
     # )
 
-    # method_a starts a transaction and calls method_b
-    def method_a(connection):
-        with connection.begin():  # open a transaction
-            method_b(connection)
 
-    # method_b also starts a transaction
-    def method_b(connection):
-        with connection.begin(): # open a transaction - this runs in the context of method_a's transaction
-            connection.execute(sql_cmd)
-    #-----------------------------------------------------------------
-    # # result = connection.execute(sql_cmd).first()[0]
+    # # method_a starts a transaction and calls method_b
+    # def method_a(connection):
+    #     with connection.begin():  # open a transaction
+    #         method_b(connection)
+
+    # # method_b also starts a transaction
+    # def method_b(connection):
+    #     with connection.begin(): # open a transaction - this runs in the context of method_a's transaction
+    #         connection.execute(sql_cmd)
+    # #-----------------------------------------------------------------
+    # # # result = connection.execute(sql_cmd).first()[0]
     # result = db.engine.execute(text("sql_cmd").execution_options(autocommit=True))
     # # user = db.session.query().from_statement(text(sql_cmd)).params(name="").all()
     # Read data
+    # #-----------------------------------------------------------------
+    # resultproxy = engine.execute(sql_cmd)
+    # response = [{column: vv for column, vv in row.items()} for row in resultproxy] # querydata transfer while fetch all item
+    # # d, a = {}, []
+    # # for row in resultproxy:
+    # # # row.items() returns an array like [(key0, value0), (key1, value1)]
+    # #     for column, value in row.items():
+    # #     # build up the dictionary
+    # #         d = {**d, **{column: value}}
+    # #     a.append(d)
     
-    # print(query)
-    #-----------------------------------------------------------------
-    resultproxy = engine.execute(sql_cmd)
-    response = [{column: value for column, value in row.items()} for row in resultproxy] # querydata transfer while fetch all item
-    # d, a = {}, []
-    # for row in resultproxy:
-    # # row.items() returns an array like [(key0, value0), (key1, value1)]
-    #     for column, value in row.items():
-    #     # build up the dictionary
-    #         d = {**d, **{column: value}}
-    #     a.append(d)
-    Qry = [item['value'] for item in response] # fetch all value in item
-    # print(Qry)
+    # Qry = [item['value'] for item in response] # filter out all value in item
+    # query = spc_measure_point_history.query.filter_by(spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da').first()
+    # prevent SQLQuery injection
     
-    return Qry #'ok', #,result
+    # stmt = select(spc_measure_point_history.work_order_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
+    Q_spchistory = select(table_history.uuid,table_history.value).where(table_history.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
+    Q_spcconfig = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
+    Q_work_order_op = select(table_work_order.start_time,table_work_order.end_time).where(table_work_order.uuid == '4b911c4c-9640-48c7-a99e-a09f9cfdb976')
+    Q_result = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')#.join_from()
+    
+    j1 = session.query(table_history).join(table_config, table_history.spc_measure_point_config_uuid == table_config.uuid).join(table_work_order, table_work_order.uuid == table_history.work_order_op_history_uuid)
+    print("jj", j1)
+    stmt = select(table_history).select_from(j1)
+    # print("stmt:", stmt)
+
+    QQ = session.query(table_history.value,table_config).join(table_history, table_history.spc_measure_point_config_uuid == table_config.uuid).filter(table_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
+    # print(QQ)
+    # sql轉譯
+    queryResult = [row for row in session.execute(stmt)] #first() meant head
+    # print("print: ", queryResult)
+
+    
+    return queryResult #,Qry
+
+
+queryfunc()
