@@ -123,27 +123,27 @@ def plotAxlines(array):
  #nmp[:,11]
 
 # def plotQuery():
-ptV = queryfunc()
-trendObj = {
-'all_vals': ptV,
-'format_1': np.zeros(len(ptV)),
-'format_2': np.zeros(len(ptV)),
-'format_3': np.zeros(len(ptV)),
-'format_4': np.zeros(len(ptV))}
+# ptV = queryfunc()
+# trendObj = {
+# 'all_vals': ptV,
+# 'format_1': np.zeros(len(ptV)),
+# 'format_2': np.zeros(len(ptV)),
+# 'format_3': np.zeros(len(ptV)),
+# 'format_4': np.zeros(len(ptV))}
 
-plt.plot(trendObj['all_vals'])
-mark = 10.0
-plt.figure(figsize=(10,5))
-plt.plot(trendObj['all_vals'], color='red',markevery=format_arr(1), ls="", marker='x',mfc = 'none', mec='red', label="Rule1", markersize=mark*0.5)
-plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(2), ls="", marker='o', mfc='none',mec='blue',label="Rule2", markersize=mark*1)
-plt.plot(trendObj['all_vals'], color='brown',markevery=format_arr(3), ls="", marker='p', mfc='none',mec='brown',label="Rule3", markersize=mark*1.5)
-plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(4), ls="", marker='s', mfc='none',mec='green',label="Rule4", markersize=mark*1.0)
-plt.plot(trendObj['all_vals'], color='#81B5CB', ls="", marker="o", markersize=mark)
-plotAxlines(trendObj['all_vals'])
-plt.legend()
-plt.ylim(0,0.003)
-# plt.plot(ptV)
-plt.savefig('static/control-chart.png')
-# return plt.show()
+# plt.plot(trendObj['all_vals'])
+# mark = 10.0
+# plt.figure(figsize=(10,5))
+# plt.plot(trendObj['all_vals'], color='red',markevery=format_arr(1), ls="", marker='x',mfc = 'none', mec='red', label="Rule1", markersize=mark*0.5)
+# plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(2), ls="", marker='o', mfc='none',mec='blue',label="Rule2", markersize=mark*1)
+# plt.plot(trendObj['all_vals'], color='brown',markevery=format_arr(3), ls="", marker='p', mfc='none',mec='brown',label="Rule3", markersize=mark*1.5)
+# plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(4), ls="", marker='s', mfc='none',mec='green',label="Rule4", markersize=mark*1.0)
+# plt.plot(trendObj['all_vals'], color='#81B5CB', ls="", marker="o", markersize=mark)
+# plotAxlines(trendObj['all_vals'])
+# plt.legend()
+# plt.ylim(0,0.003)
+# # plt.plot(ptV)
+# plt.savefig('static/control-chart.png')
+# # return plt.show()
 
-# plotQuery()
+# # plotQuery()
