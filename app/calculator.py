@@ -16,13 +16,15 @@ data_transforms = None
 #     with open(log_file, "r") as f:
 #         megadata = f.read().split("\n")
 
-def calc(mylst,usl,lsl):
+def calc(mylst,usl,lsl,num_good,num_defect):
     ANS = 0,0,0,0 # return ans once exception occur
     try:
         arr = np.array(mylst)
         # print("arr: ",arr)
         arr = arr.ravel()
         # print("ravel, " ,arr)
+        total_num = num_good + num_defect
+        g_rate = good
         ngroup = 10 #input() #給使用者指定每組大小
         ppkarr = np.array_split(arr,ngroup)# 將資料分組計算
         ppkarrSig = [np.mean(i) for i in ppkarr]
@@ -37,7 +39,7 @@ def calc(mylst,usl,lsl):
         ppu = float(usl - m) / (3*sigmaPpk)
         ppl = float(m - lsl) / (3*sigmaPpk)
         Ppk = np.min([ppu,ppl])
-        ANS = Cp, Cpu, Cpk, Ppk
+        ANS = total_num, Cp, Cpu, Cpk, Ppk
         return ANS #Cp, Cpu, Cpk, Ppk
     except  ZeroDivisionError() as e: # work on python 2.x
         print('sigma zero result from variance: '+ str(e))
