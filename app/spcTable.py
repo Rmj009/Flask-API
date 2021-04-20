@@ -3,14 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import text
 from sqlalchemy.sql import text
+from sqlalchemy import select
 from calculator import *  #load_manuplate # ./../
 from sqlalchemy import create_engine 
+from sqlalchemy.orm import sessionmaker
 db = SQLAlchemy()
 app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
 app.config["DEBUG"] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
 engine = create_engine('postgresql://postgres:edge9527@localhost:5432/dev_tenant')
+Session = sessionmaker(bind=engine)
+# create a configured "Session" class
+session = Session() # create a Session
 connection = engine.connect()
 db.init_app(app)
 """
@@ -91,7 +96,7 @@ class spc_measure_point_history(db.Model): #Sojourn
     __tablename__='spc_measure_point_history'
     uuid = db.Column(
         db.String(30),unique = True,  primary_key = True, nullable = False)
-    work_oder_op_history_uuid = db.Column(
+    work_order_op_history_uuid = db.Column(
         db.String(50), unique=False, nullable=False)
     tenant_id = db.Column(
         db.String(50), unique=False, nullable=False)
@@ -109,10 +114,9 @@ class spc_measure_point_history(db.Model): #Sojourn
     # state = db.Column(
     #     db.String(30), unique=True, nullable=False)
     
-    def __init__(self,uuid,value,create_time,update_time,work_oder_op_history_uuid,spc_measure_point_config_uuid):
-        # route_uuid,,state,operation_uuid,measure_object_id
+    def __repr__(self,uuid,work_order_op_history_uuid,tenant_id,create_time,update_time,worker_id,spc_measure_point_config_uuid,value,measure_object_id,spc_measure_instrument_uuid):
         self.uuid = uuid
-        self.work_oder_op_history_uuid = work_oder_op_history_uuid
+        self.work_order_op_history_uuid = work_order_op_history_uuid
         self.tenant_id = tenant_id
         self.create_time = create_time
         self.update_time = update_time
@@ -124,6 +128,18 @@ class spc_measure_point_history(db.Model): #Sojourn
         # self.state
 
 # query = spc_measure_point_history.query.filter_by(spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da').first()
+# print(query)
+
+stmt = select(spc_measure_point_history.work_order_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
+# QspcHistory = select(spc_measure_point_history.work_oder_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
+# sql轉譯
+# print(result)
+
+# for row in session.execute(stmt):
+#         print(row)
+#         count += 1
+queryResult = [row for row in session.execute(stmt)]
+print("stms: ", queryResult)
 
 def qquery():
     # sql_cmd = (
