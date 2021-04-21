@@ -63,27 +63,33 @@ def index():
       print("body_json: ", body_json)   
     return 'ok' #,result
 
-class cap:
-  @app.route("/capability", methods=['GET'])
-  def capability():
+@app.route("/capability", methods=['GET'])
+def capability():
     # query params
     global spcTable_query
     b = request.args.get('begin_time') # try to request 'n'
     e = request.args.get('expiry_time')
     keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
     spcTable_query = spcTable.queryfunc(begin_time=b,expiry_time=e)
+    print(spcTable_query)
     resultCapablity = dict(zip(keys, calc(mylst = spcTable_query)))
     print("Capablity result: ", resultCapablity)
     # results = calc(spcTable_query)
 
     return resultCapablity#,results
 
-
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
+    b = request.args.get('begin_time') # try to request 'n'
+    e = request.args.get('expiry_time')
+    keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
+    spcTable_query = spcTable.queryfunc(begin_time=b,expiry_time=e)
+    print(spcTable_query)
+    resultCapablity = dict(zip(keys, calc(mylst = spcTable_query)))
+    print("Capablity result: ", resultCapablity)
     try: 
-        return render_template('index.html', title="spc_show", jsonfile=json.dumps(capability()) )
+        return render_template('index.html', title="spc_show", jsonfile=json.dumps(resultCapablity) )
     except Exception as e:
         pass
 

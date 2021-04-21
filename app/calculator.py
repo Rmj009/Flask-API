@@ -12,7 +12,7 @@ def calc(mylst):
         # print("mylst", mylst)
         # cap.capability
         
-        print("mmmmmylst['goodlst']",mylst['goodlst'])
+        # print("mmmmmylst['goodlst']",mylst['goodlst'])
         # mylst = spcTable_query
 
         goodlst = mylst['goodlst']
