@@ -6,25 +6,30 @@ from spcTable import *
 
 data_transforms = None
 
-# def load_data(cls_file, log_file):
-#     global classes, megadata
-#     # df = pd.read_json(r'file')
-#     # djson = df.to_csv()
-#     with open(cls_file, "r") as f:
-#         djson = json.load(json_file)
-#         # classes = f.read().split("\n")
-#     with open(log_file, "r") as f:
-#         megadata = f.read().split("\n")
-
-def calc(mylst,usl,lsl,num_good,num_defect):
+def calc(mylst):
     ANS = 0,0,0,0 # return ans once exception occur
     try:
-        arr = np.array(mylst)
+        # print("mylst", mylst)
+        # cap.capability
+        
+        print("mmmmmylst['goodlst']",mylst['goodlst'])
+        # mylst = spcTable_query
+
+        goodlst = mylst['goodlst']
+        defectlst = mylst['defectlst']
+        uslspec = mylst['lslspec']
+        lslspec = mylst['lslspec']
+        parselst = mylst['valuelst']
+        
+        arr = np.array(parselst)
         # print("arr: ",arr)
         arr = arr.ravel()
         # print("ravel, " ,arr)
+        num_good = len(goodlst)
+        num_defect = len(defectlst)
         total_num = num_good + num_defect
-        g_rate = good
+        good_rate = num_good / total_num
+        defect_rate = num_defect / total_num
         ngroup = 10 #input() #給使用者指定每組大小
         ppkarr = np.array_split(arr,ngroup)# 將資料分組計算
         ppkarrSig = [np.mean(i) for i in ppkarr]
@@ -32,16 +37,19 @@ def calc(mylst,usl,lsl,num_good,num_defect):
         # print("sigmaPpk: ",sigmaPpk)
         sigmaCpk = np.std(arr)
         m = np.mean(arr) #median
-        Cp = float(usl - lsl) / (6*sigmaCpk)
-        Cpu = float(usl - m) / (3*sigmaCpk)
-        Cpl = float(m - lsl) / (3*sigmaCpk)
+        Cp = float(uslspec - lslspec) / (6*sigmaCpk)
+        Cpu = float(uslspec - m) / (3*sigmaCpk)
+        Cpl = float(m - lslspec) / (3*sigmaCpk)
         Cpk = np.min([Cpu, Cpl])
-        ppu = float(usl - m) / (3*sigmaPpk)
-        ppl = float(m - lsl) / (3*sigmaPpk)
+        ppu = float(uslspec - m) / (3*sigmaPpk)
+        ppl = float(m - lslspec) / (3*sigmaPpk)
         Ppk = np.min([ppu,ppl])
-        ANS = total_num, Cp, Cpu, Cpk, Ppk
-        return ANS #Cp, Cpu, Cpk, Ppk
-    except  ZeroDivisionError() as e: # work on python 2.x
+        ANS = Cp, Cpu, Cpk, Ppk, uslspec, lslspec, good_rate, defect_rate, total_num
+        # keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
+        # resultCapablity = dict(zip(keys, ANS))
+        # print("Capablity result: ", resultCapablity)
+        return ANS#,resultCapablity
+    except  ZeroDivisionError() as e:
         print('sigma zero result from variance: '+ str(e))
         print("fix infinity")
 
@@ -147,3 +155,10 @@ def plotAxlines(array):
 # # return plt.show()
 
 # # plotQuery()
+
+# a = calc(mylst = result_table)
+# print(a)
+
+# if __name__ == "__main__":
+#     print("open")
+#     calc({"valuelst":100,"goodlst":100 ,"defectlst":88 ,"lslspec": 60,"uslspec": 10})

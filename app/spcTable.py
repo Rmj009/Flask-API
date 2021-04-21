@@ -174,82 +174,62 @@ class work_order_op_history(db.Model): #Sojourn 3
         self.work_order_uuid = work_order_uuid
         self.operation_uuid = operation_uuid
 
-def queryfunc(): # start_time,end_time,work_order_op_history_uuid,spc_measure_point_config_uuid
+
+class spcTable:
+  def __init__(self):
+    self.firstvar = begin_time
+    self.lastvar = expiry_time
+
+  def queryfunc(begin_time,expiry_time): # start_time,end_time,work_order_op_history_uuid,spc_measure_point_config_uuid
     # aliazed the table
     table_config = aliased(spc_measure_point_config) # operation_uuid <=> table_work_order
     table_history = aliased(spc_measure_point_history) # work_order_op_history_uuid <=> table_work_order.uuid
     table_work_order = aliased(work_order_op_history) # operation_uuid <=> table_config
-    # sql_cmd = (
-    #     """
-    #     SELECT value, spc_measure_point_config_uuid FROM spc_measure_point_history
-    #     WHERE value NOT IN (-88888888) and spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da';
-
-    #     """
-    #     )
-    # sql_cmd = (
-    #     """
-    #     select * 
-    #     from spc_measure_point_config 
-    #     where uuid = '57016b97-2355-460f-b673-6512d8ed00da'
-    #     """
-    # # )
-    # sql_cmd = (
-    #     """
-    #     SELECT work_order_id 
-    #     FROM work_order_op_history
-    #     WHERE work_order_id == 11024776
-    #     """
-    # )
-
-
-    # # method_a starts a transaction and calls method_b
-    # def method_a(connection):
-    #     with connection.begin():  # open a transaction
-    #         method_b(connection)
-
-    # # method_b also starts a transaction
-    # def method_b(connection):
-    #     with connection.begin(): # open a transaction - this runs in the context of method_a's transaction
-    #         connection.execute(sql_cmd)
-    # #-----------------------------------------------------------------
-    # # # result = connection.execute(sql_cmd).first()[0]
-    # result = db.engine.execute(text("sql_cmd").execution_options(autocommit=True))
-    # # user = db.session.query().from_statement(text(sql_cmd)).params(name="").all()
-    # Read data
-    # #-----------------------------------------------------------------
-    # resultproxy = engine.execute(sql_cmd)
-    # response = [{column: vv for column, vv in row.items()} for row in resultproxy] # querydata transfer while fetch all item
-    # # d, a = {}, []
-    # # for row in resultproxy:
-    # # # row.items() returns an array like [(key0, value0), (key1, value1)]
-    # #     for column, value in row.items():
-    # #     # build up the dictionary
-    # #         d = {**d, **{column: value}}
-    # #     a.append(d)
     
-    # Qry = [item['value'] for item in response] # filter out all value in item
-    # query = spc_measure_point_history.query.filter_by(spc_measure_point_config_uuid='57016b97-2355-460f-b673-6512d8ed00da').first()
-    # prevent SQLQuery injection
     
     # stmt = select(spc_measure_point_history.work_order_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
     Q_spchistory = select(table_history.uuid,table_history.value).where(table_history.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
     Q_spcconfig = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
     Q_work_order_op = select(table_work_order.start_time,table_work_order.end_time).where(table_work_order.uuid == '4b911c4c-9640-48c7-a99e-a09f9cfdb976')
     Q_result = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')#.join_from()
+    # table_history.value,table_work_order.good,table_work_order.defect,table_config.usl,table_config.lsl
     
-    j1 = session.query(table_history).join(table_config, table_history.spc_measure_point_config_uuid == table_config.uuid).join(table_work_order, table_work_order.uuid == table_history.work_order_op_history_uuid)
-    print("jj", j1)
-    stmt = select(table_history).select_from(j1)
-    # print("stmt:", stmt)
 
-    QQ = session.query(table_history.value,table_config).join(table_history, table_history.spc_measure_point_config_uuid == table_config.uuid).filter(table_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
+    try:
+        j1 = session.query(table_history.value,table_work_order.good,table_work_order.defect,table_config.lsl,table_config.usl)\
+        .join(table_config, table_history.spc_measure_point_config_uuid == table_config.uuid)\
+        .join(table_work_order, table_work_order.uuid == table_history.work_order_op_history_uuid)\
+        .where((table_work_order.start_time > begin_time) & (table_work_order.end_time < expiry_time))
+        # while (table_history.work_order_op_history_uuid and table_history.spc_measure_point_config_uuid)
+        queryResult = [row for row in session.execute(j1)] #first() meant head
+
+        valuelst = [item[0] for item in queryResult]
+        goodlst = [item[1] for item in queryResult]
+        defectlst = [item[2] for item in queryResult]
+        lslspec = [item[3] for item in queryResult][0]
+        uslspec = [item[4] for item in queryResult][0]
+        # print(j1)
+        # print("print: ", queryResult ,sep='\n')
+        qResult = {"valuelst":valuelst,"goodlst":goodlst ,"defectlst":defectlst ,"lslspec": lslspec,"uslspec": uslspec}
+        # consum fun from calculator 
+        # 
+        return qResult
+        
+
+    except Exception as e:
+        print("error type: ",type(e),str(e))
+        raise
+  
+    # print("jj", j1)
+    # stmt = select(table_history).select_from(j1) #subquery
+    # print("stmt:", stmt)
+    # print(stmt)
+
+    # QQ = session.query(table_history.value,table_config).join(table_history, table_history.spc_measure_point_config_uuid == table_config.uuid).filter(table_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
     # print(QQ)
     # sql轉譯
-    queryResult = [row for row in session.execute(stmt)] #first() meant head
-    # print("print: ", queryResult)
-
-    
-    return queryResult #,Qry
+    def printvar():
+        print(self.firstvar, self.lastvar)
 
 
-queryfunc()
+# print(spcTable.queryfunc())

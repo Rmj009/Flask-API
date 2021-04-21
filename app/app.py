@@ -63,23 +63,27 @@ def index():
       print("body_json: ", body_json)   
     return 'ok' #,result
 
-@app.route("/capability", methods=['GET'])
-def capability():
-  #  username = request.args.get('username')
-  #  password = request.args.get('password')
-    usl = 100 # concatenate the user query
-    lsl = 10 #吃資料庫usl lsl 
-    keys = ["Cp","Cpu","Cpk","Ppk"]
-    resultCapablity = dict(zip(keys, calc(mylst = queryfunc(), usl=usl, lsl=lsl)))
-  # map(dict, map(lambda t:zip(('num','char'),t), zip(list_nums,list_chars))) # [values for key,values in d.items()]
+class cap:
+  @app.route("/capability", methods=['GET'])
+  def capability():
+    # query params
+    global spcTable_query
+    b = request.args.get('begin_time') # try to request 'n'
+    e = request.args.get('expiry_time')
+    keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
+    spcTable_query = spcTable.queryfunc(begin_time=b,expiry_time=e)
+    resultCapablity = dict(zip(keys, calc(mylst = spcTable_query)))
     print("Capablity result: ", resultCapablity)
-    # resultImage = plotQuery()
-    return resultCapablity #,jsonify(resultCapablity), 200
+    # results = calc(spcTable_query)
+
+    return resultCapablity#,results
+
+
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
     try: 
-        return render_template('index.html', title="spc_show", jsonfile=json.dumps(capability()()) )
+        return render_template('index.html', title="spc_show", jsonfile=json.dumps(capability()) )
     except Exception as e:
         pass
 
@@ -89,6 +93,8 @@ def loginQ():
     if request.method == 'POST': 
         return 'SpcDashboard ' + request.values['specificChart'] #redirect(url_for('hello', specificChart=request.form.get('specificChart')))
     # return render_template('loginQ.html')
+    #  username = request.args.get('username')
+    #  password = request.args.get('password')
 
     return "<form method='post' action='/loginQ'><input type='text' name='specificChart' />" \
             "</br>" \
