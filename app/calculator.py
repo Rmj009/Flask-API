@@ -7,14 +7,10 @@ from spcTable import *
 data_transforms = None
 
 def calc(mylst):
-    ANS = 0,0,0,0 # return ans once exception occur
+    ANS = 0,0,0,0,0,0,0,0,0 # return ans once exception occur
     try:
         # print("mylst", mylst)
-        # cap.capability
-        
-        # print("mmmmmylst['goodlst']",mylst['goodlst'])
-        # mylst = spcTable_query
-
+        # print("mmylst['goodlst']",mylst['goodlst'])
         goodlst = mylst['goodlst']
         defectlst = mylst['defectlst']
         uslspec = mylst['lslspec']
@@ -22,9 +18,7 @@ def calc(mylst):
         parselst = mylst['valuelst']
         
         arr = np.array(parselst)
-        # print("arr: ",arr)
         arr = arr.ravel()
-        # print("ravel, " ,arr)
         num_good = len(goodlst)
         num_defect = len(defectlst)
         total_num = num_good + num_defect
@@ -34,7 +28,6 @@ def calc(mylst):
         ppkarr = np.array_split(arr,ngroup)# 將資料分組計算
         ppkarrSig = [np.mean(i) for i in ppkarr]
         sigmaPpk = np.std(ppkarrSig)
-        # print("sigmaPpk: ",sigmaPpk)
         sigmaCpk = np.std(arr)
         m = np.mean(arr) #median
         Cp = float(uslspec - lslspec) / (6*sigmaCpk)
@@ -45,10 +38,10 @@ def calc(mylst):
         ppl = float(m - lslspec) / (3*sigmaPpk)
         Ppk = np.min([ppu,ppl])
         ANS = Cp, Cpu, Cpk, Ppk, uslspec, lslspec, good_rate, defect_rate, total_num
-        # keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
-        # resultCapablity = dict(zip(keys, ANS))
-        # print("Capablity result: ", resultCapablity)
-        return ANS#,resultCapablity
+        keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
+        resultCapablity = dict(zip(keys, ANS))
+        print("Capablity result: ", resultCapablity)
+        return resultCapablity
     except  ZeroDivisionError() as e:
         print('sigma zero result from variance: '+ str(e))
         print("fix infinity")

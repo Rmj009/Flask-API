@@ -9,7 +9,6 @@ app = Flask(__name__, static_url_path='') # coz, import style >>> import flask
 import the others function
 """
 import spcchart
-from calculator import *
 from spcTable import *
 import os,sys,traceback
 from sqlalchemy import create_engine 
@@ -69,24 +68,21 @@ def capability():
     global spcTable_query
     b = request.args.get('begin_time') # try to request 'n'
     e = request.args.get('expiry_time')
-    keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
-    spcTable_query = spcTable.queryfunc(begin_time=b,expiry_time=e)
-    print(spcTable_query)
-    resultCapablity = dict(zip(keys, calc(mylst = spcTable_query)))
+    resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e)
+    # resultCapablity = dict(zip(keys, calc(mylst = spcTable_query)))
     print("Capablity result: ", resultCapablity)
-    # results = calc(spcTable_query)
 
-    return resultCapablity#,results
+    return resultCapablity
+
 
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
-    b = request.args.get('begin_time') # try to request 'n'
-    e = request.args.get('expiry_time')
-    keys = ["Cp","Cpu","Cpk","Ppk","usl","lsl","good_rate","defect_rate","total_num"]
-    spcTable_query = spcTable.queryfunc(begin_time=b,expiry_time=e)
-    print(spcTable_query)
-    resultCapablity = dict(zip(keys, calc(mylst = spcTable_query)))
+    b = request.args.get('begin_time') # b = 2020-09-02T07:41:03Z
+    e = request.args.get('expiry_time') # e = 2021-01-15T10:47:32Z
+    # b = '2020-09-02T07:41:03Z'
+    # e = '2021-01-15T10:47:32Z'
+    resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e)
     print("Capablity result: ", resultCapablity)
     try: 
         return render_template('index.html', title="spc_show", jsonfile=json.dumps(resultCapablity) )
@@ -109,6 +105,11 @@ def loginQ():
 # @app.route('/hello/<specificChart>')
 # def hello(specificChart):
 #     return render_template('helloDashboard.html', username=specificChart)
+
+
+
+def test():
+ return calc(mylst)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ from sqlalchemy.sql import text
 from sqlalchemy import select,column,join
 from sqlalchemy import create_engine 
 from sqlalchemy.orm import sessionmaker, aliased
+from calculator import calc
 db = SQLAlchemy()
 app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
 app.config["DEBUG"] = True
@@ -199,7 +200,8 @@ class spcTable:
         j1 = session.query(table_history.value,table_work_order.good,table_work_order.defect,table_config.lsl,table_config.usl)\
         .join(table_config, table_history.spc_measure_point_config_uuid == table_config.uuid)\
         .join(table_work_order, table_work_order.uuid == table_history.work_order_op_history_uuid)\
-        .where((table_work_order.start_time > begin_time) & (table_work_order.end_time < expiry_time))
+        .where((table_work_order.start_time > begin_time) & (table_work_order.end_time < expiry_time) )
+        # if table_history.work... != &()
         # while (table_history.work_order_op_history_uuid and table_history.spc_measure_point_config_uuid)
         queryResult = [row for row in session.execute(j1)] #first() meant head
 
@@ -212,8 +214,9 @@ class spcTable:
         # print("print: ", queryResult ,sep='\n')
         qResult = {"valuelst":valuelst,"goodlst":goodlst ,"defectlst":defectlst ,"lslspec": lslspec,"uslspec": uslspec}
         # consum fun from calculator 
-        # 
-        return qResult
+        resultCapablity = calc(mylst = qResult)
+
+        return resultCapablity
         
 
     except Exception as e:
