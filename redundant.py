@@ -45,7 +45,12 @@ map(dict, map(lambda t:zip(('num','char'),t), zip(list_nums,list_chars))) # [val
     # prevent SQLQuery injection
 
 
-
+# # stmt = select(spc_measure_point_history.work_order_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
+#     Q_spchistory = select(table_history.uuid,table_history.value).where(table_history.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
+#     Q_spcconfig = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
+#     Q_work_order_op = select(table_work_order.start_time,table_work_order.end_time).where(table_work_order.uuid == '4b911c4c-9640-48c7-a99e-a09f9cfdb976')
+#     Q_result = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')#.join_from()
+#     # table_history.value,table_work_order.good,table_work_order.defect,table_config.usl,table_config.lsl
 
 
 

@@ -54,3 +54,30 @@ FROM spc_measure_point_history AS spc_measure_point_history_1
 JOIN spc_measure_point_config AS spc_measure_point_config_1 ON spc_measure_point_history_1.spc_measure_point_config_uuid = spc_measure_point_config_1.uuid 
 JOIN work_order_op_history AS work_order_op_history_1 ON work_order_op_history_1.uuid = spc_measure_point_history_1.work_order_op_history_uuid 
 WHERE work_order_op_history_1.start_time > %(start_time_1)s AND work_order_op_history_1.end_time < %(end_time_1)s
+
+
+--------------------------
+
+SELECT spc_measure_point_history_1.value AS spc_measure_point_history_1_value, work_order_op_history_1.good AS work_order_op_history_1_good, work_order_op_history_1.defect AS work_order_op_history_1_defect, spc_measure_point_config_1.lsl AS spc_measure_point_config_1_lsl, spc_measure_point_config_1.usl AS spc_measure_point_config_1_usl 
+FROM spc_measure_point_history AS spc_measure_point_history_1 JOIN spc_measure_point_config AS spc_measure_point_config_1 ON spc_measure_point_history_1.spc_measure_point_config_uuid = spc_measure_point_config_1.uuid JOIN work_order_op_history AS work_order_op_history_1 ON work_order_op_history_1.uuid = spc_measure_point_history_1.work_order_op_history_uuid 
+
+WHERE work_order_op_history_1.start_time > %(start_time_1)s 
+AND work_order_op_history_1.end_time < %(end_time_1)s 
+AND (spc_measure_point_history_1.work_order_op_history_uuid IS NOT NULL OR spc_measure_point_history_1.spc_measure_point_config_uuid IS NOT NULL)
+
+
+
+---------------4/22-----------------
+SELECT spc_measure_point_history_1.value AS spc_measure_point_history_1_value, 
+spc_measure_point_config_1.lsl AS spc_measure_point_config_1_lsl, 
+spc_measure_point_config_1.usl AS spc_measure_point_config_1_usl, 
+work_order_op_history_1.good AS work_order_op_history_1_good, 
+work_order_op_history_1.defect AS work_order_op_history_1_defect 
+
+FROM spc_measure_point_history AS spc_measure_point_history_1 
+JOIN spc_measure_point_config AS spc_measure_point_config_1 ON spc_measure_point_history_1.spc_measure_point_config_uuid = spc_measure_point_config_1.uuid 
+JOIN work_order_op_history AS work_order_op_history_1 ON work_order_op_history_1.uuid = %(uuid_1)s 
+
+WHERE work_order_op_history_1.start_time > %(start_time_1)s AND 
+work_order_op_history_1.end_time < %(end_time_1)s AND 
+spc_measure_point_history_1.spc_measure_point_config_uuid = %(spc_measure_point_config_uuid_1)s

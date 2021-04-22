@@ -6,7 +6,7 @@ from sqlalchemy.sql import text
 from sqlalchemy import select,column,join
 from sqlalchemy import create_engine 
 from sqlalchemy.orm import sessionmaker, aliased
-from calculator import calc
+from calculator import *
 db = SQLAlchemy()
 app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
 app.config["DEBUG"] = True
@@ -178,43 +178,70 @@ class work_order_op_history(db.Model): #Sojourn 3
 
 class spcTable:
   def __init__(self):
-    self.firstvar = begin_time
-    self.lastvar = expiry_time
-
-  def queryfunc(begin_time,expiry_time): # start_time,end_time,work_order_op_history_uuid,spc_measure_point_config_uuid
+      pass
+    # self.firstvar = begin_time
+    # self.lastvar = expiry_time
+  
+  def queryfunc(begin_time,expiry_time,wooh_uuid,smpc_uuid): # start_time,end_time,work_order_op_history_uuid,spc_measure_point_config_uuid
     # aliazed the table
     table_config = aliased(spc_measure_point_config) # operation_uuid <=> table_work_order
     table_history = aliased(spc_measure_point_history) # work_order_op_history_uuid <=> table_work_order.uuid
     table_work_order = aliased(work_order_op_history) # operation_uuid <=> table_config
-    
-    
-    # stmt = select(spc_measure_point_history.work_order_op_history_uuid).where(spc_measure_point_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
-    Q_spchistory = select(table_history.uuid,table_history.value).where(table_history.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
-    Q_spcconfig = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')
-    Q_work_order_op = select(table_work_order.start_time,table_work_order.end_time).where(table_work_order.uuid == '4b911c4c-9640-48c7-a99e-a09f9cfdb976')
-    Q_result = select(table_config.uuid).where(table_config.uuid == '3aa29f18-4fc0-48d7-ab29-541d79c7998d')#.join_from()
-    # table_history.value,table_work_order.good,table_work_order.defect,table_config.usl,table_config.lsl
-    
-
+    def format_arr(rule):
+        rule_arr = 'format_' + str(rule)
+        # aa=[index for index,val in enumerate(trendObj[rule_arr]) if val]
+        # print(aa)
+        return [index for index,val in enumerate(trendObj[rule_arr]) if val]
+    def plotAxlines(array):
+        theMean = np.mean(array)
+        sd = np.std(array)
+        colors = ['black','green','violet','red']
+        for level,color in enumerate(colors):
+            upper = theMean + sd*level
+            lower = theMean - sd*level
+            plt.axhline(y=upper, linewidth=0.5, color=color)
+            plt.axhline(y=lower, linewidth=0.5, color=color)
+        return
     try:
-        j1 = session.query(table_history.value,table_work_order.good,table_work_order.defect,table_config.lsl,table_config.usl)\
+        table_history.work_order_op_history_uuid = wooh_uuid
+        j1 = session.query(table_history.value,table_config.lsl,table_config.usl,table_work_order.good,table_work_order.defect)\
         .join(table_config, table_history.spc_measure_point_config_uuid == table_config.uuid)\
         .join(table_work_order, table_work_order.uuid == table_history.work_order_op_history_uuid)\
-        .where((table_work_order.start_time > begin_time) & (table_work_order.end_time < expiry_time) )
-        # if table_history.work... != &()
-        # while (table_history.work_order_op_history_uuid and table_history.spc_measure_point_config_uuid)
-        queryResult = [row for row in session.execute(j1)] #first() meant head
-
+        .where((table_work_order.start_time > begin_time) & (table_work_order.end_time < expiry_time) & (table_history.spc_measure_point_config_uuid == smpc_uuid))
+        if (table_history.work_order_op_history_uuid != None) :
+            yy = j1.filter(table_history.work_order_op_history_uuid == wooh_uuid)
+        # print(yy)
+        queryResult = [row for row in session.execute(yy)] #first() meant head
+        print("####",queryResult,sep='\n')
         valuelst = [item[0] for item in queryResult]
         goodlst = [item[1] for item in queryResult]
         defectlst = [item[2] for item in queryResult]
         lslspec = [item[3] for item in queryResult][0]
+        print("####lslspec###", lslspec)
         uslspec = [item[4] for item in queryResult][0]
-        # print(j1)
-        # print("print: ", queryResult ,sep='\n')
         qResult = {"valuelst":valuelst,"goodlst":goodlst ,"defectlst":defectlst ,"lslspec": lslspec,"uslspec": uslspec}
-        # consum fun from calculator 
-        resultCapablity = calc(mylst = qResult)
+        # print(qResult)
+        resultCapablity = calculator.calc(mylst = qResult)
+        #---------invoke western------------
+        ptV = valuelst
+        trendObj = {'all_vals': ptV,'format_1': np.zeros(len(ptV)),'format_2': np.zeros(len(ptV)),'format_3': np.zeros(len(ptV)),'format_4': np.zeros(len(ptV))}
+        plt.plot(trendObj['all_vals'])
+        # assign_datum(obj = trendObj, datum = 10)
+        mark = 3.5
+        plt.figure(figsize=(60,30))
+        plt.plot(trendObj['all_vals'], color='red',markevery=format_arr(1), ls="", marker='s',mfc = 'none', mec='red', label="Rule1", markersize=mark*1.5)
+        plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(2), ls="", marker='o', mfc='none',mec='blue',label="Rule2", markersize=mark*1)
+        plt.plot(trendObj['all_vals'], color='brown',markevery=format_arr(3), ls="", marker='o', mfc='none',mec='brown',label="Rule3", markersize=mark*1.5)
+        plt.plot(trendObj['all_vals'], color='blue',markevery=format_arr(4), ls="", marker='s', mfc='none',mec='green',label="Rule4", markersize=mark*1.0)
+        plt.plot(trendObj['all_vals'], color='#81B5CB', ls="", marker=".", markersize=mark)
+        plotAxlines(trendObj['all_vals'])
+        plt.legend()
+        plt.ylim(0,25)
+        # # plt.plot(ptV)
+        plt.savefig('static/control-chart.png')
+        # # g = sns.relplot(x = 'all_vals', y = 'format_1', data = trendObj, kind="line")
+        # # g.fig.autofmt_xdate()
+        plt.show()
 
         return resultCapablity
         
@@ -231,8 +258,26 @@ class spcTable:
     # QQ = session.query(table_history.value,table_config).join(table_history, table_history.spc_measure_point_config_uuid == table_config.uuid).filter(table_history.spc_measure_point_config_uuid == '57016b97-2355-460f-b673-6512d8ed00da')
     # print(QQ)
     # sql轉譯
-    def printvar():
-        print(self.firstvar, self.lastvar)
 
 
-# print(spcTable.queryfunc())
+
+if __name__ == "__main__":
+
+    db = SQLAlchemy()
+    app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
+    app.config["DEBUG"] = True
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
+    engine = create_engine('postgresql://postgres:edge9527@localhost:5432/dev_tenant')
+    Session = sessionmaker(bind=engine)
+    # create a configured "Session" class
+    session = Session() # create a Session
+    connection = engine.connect()
+    db.init_app(app)
+    print("###open###1111")
+    # b = '2020-09-02T07:41:03Z'
+    # e = '2021-01-15T10:47:32Z'
+    # wuuid = 'd5473fb7-42ac-4794-bf4d-358f4ddccd1c'
+    # suuid = '69636a46-48cb-4a99-976e-5ecc024c1332'
+    # resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+    # print(resultCapablity)

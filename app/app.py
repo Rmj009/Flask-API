@@ -68,8 +68,10 @@ def capability():
     global spcTable_query
     b = request.args.get('begin_time') # try to request 'n'
     e = request.args.get('expiry_time')
-    resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e)
-    # resultCapablity = dict(zip(keys, calc(mylst = spcTable_query)))
+    wuuid = request.args.get('wooh_uuid')
+    suuid = request.args.get('smpc_uuid')
+    resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+    # resultCapablity = dict(zip(keys, calc(mylst = spcTable_quesuuidry)))
     print("Capablity result: ", resultCapablity)
 
     return resultCapablity
@@ -78,16 +80,20 @@ def capability():
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
-    b = request.args.get('begin_time') # b = 2020-09-02T07:41:03Z
-    e = request.args.get('expiry_time') # e = 2021-01-15T10:47:32Z
-    # b = '2020-09-02T07:41:03Z'
-    # e = '2021-01-15T10:47:32Z'
-    resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e)
-    print("Capablity result: ", resultCapablity)
-    try: 
-        return render_template('index.html', title="spc_show", jsonfile=json.dumps(resultCapablity) )
-    except Exception as e:
-        pass
+  b = request.args.get('begin_time') # b = 2020-09-02T07:41:03Z
+  e = request.args.get('expiry_time') # e = 2021-01-15T10:47:32Z
+  wuuid = request.args.get('wooh_uuid')
+  suuid = request.args.get('smpc_uuid')
+  # b = '2020-09-02T07:41:03Z'
+  # e = '2021-01-15T10:47:32Z'
+  # wuuid = 'd5473fb7-42ac-4794-bf4d-358f4ddccd1c'
+  # suuid = '69636a46-48cb-4a99-976e-5ecc024c1332'
+  resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+  # print("Capablity result: ", resultCapablity)
+  try: 
+      return render_template('index.html', title="spc_show", jsonfile=json.dumps(resultCapablity) )
+  except Exception as e:
+      pass
 
 
 @app.route('/loginQ', methods=['GET', 'POST']) 
