@@ -176,7 +176,7 @@ class work_order_op_history(db.Model): #Sojourn 3
         self.operation_uuid = operation_uuid
 
 
-class spcTable:
+class SpcTable:
   def __init__(self):
       pass
     # self.firstvar = begin_time
@@ -221,7 +221,7 @@ class spcTable:
         uslspec = [item[4] for item in queryResult][0]
         qResult = {"valuelst":valuelst,"goodlst":goodlst ,"defectlst":defectlst ,"lslspec": lslspec,"uslspec": uslspec}
         # print(qResult)
-        resultCapablity = calculator.calc(mylst = qResult)
+        resultCapablity = Calculator.calc(mylst = qResult)
         #---------invoke western------------
         ptV = valuelst
         trendObj = {'all_vals': ptV,'format_1': np.zeros(len(ptV)),'format_2': np.zeros(len(ptV)),'format_3': np.zeros(len(ptV)),'format_4': np.zeros(len(ptV))}

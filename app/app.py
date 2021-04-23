@@ -1,7 +1,7 @@
 # export DATABASE_URL='postgres://localhost:5432/
 from datetime import datetime
 from flask import Flask, request, render_template, abort, url_for, redirect, json, jsonify, escape
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 import json,html
 app = Flask(__name__, static_url_path='') # coz, import style >>> import flask
 # from sqlalchemy.sql import text
@@ -9,7 +9,7 @@ app = Flask(__name__, static_url_path='') # coz, import style >>> import flask
 import the others function
 """
 import spcchart
-from spcTable import *
+from spcTable import SpcTable
 import os,sys,traceback
 from sqlalchemy import create_engine 
 #------------CONFIGURATION--------------
@@ -65,12 +65,11 @@ def index():
 @app.route("/capability", methods=['GET'])
 def capability():
     # query params
-    global spcTable_query
     b = request.args.get('begin_time') # try to request 'n'
     e = request.args.get('expiry_time')
     wuuid = request.args.get('wooh_uuid')
     suuid = request.args.get('smpc_uuid')
-    resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+    resultCapablity = SpcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
     # resultCapablity = dict(zip(keys, calc(mylst = spcTable_quesuuidry)))
     print("Capablity result: ", resultCapablity)
 
@@ -88,7 +87,7 @@ def home():
   # e = '2021-01-15T10:47:32Z'
   # wuuid = 'd5473fb7-42ac-4794-bf4d-358f4ddccd1c'
   # suuid = '69636a46-48cb-4a99-976e-5ecc024c1332'
-  resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+  resultCapablity = SpcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
   # print("Capablity result: ", resultCapablity)
   try: 
       return render_template('index.html', title="spc_show", jsonfile=json.dumps(resultCapablity) )

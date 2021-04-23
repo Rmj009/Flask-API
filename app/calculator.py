@@ -3,8 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statistics as stat
-# from spcTable import queryfunc
-class calculator:
+class Calculator:
     def calc(mylst):
         ANS = 0,0,0,0,0,0,0,0,0 # return ans once exception occur
         try:
@@ -54,7 +53,7 @@ class calculator:
 # ptV = nmp[:,11]
 # trendObj = {'all_vals': ptV,'format_1': np.zeros(len(ptV)),'format_2': np.zeros(len(ptV)),'format_3': np.zeros(len(ptV)),'format_4': np.zeros(len(ptV))}
 
-class western(calculator):
+class western(Calculator):
 
     def rando():
         theNum = np.random.randint(low = 7.5, high = 15 , size = 195)
