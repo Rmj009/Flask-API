@@ -1,17 +1,18 @@
 # export DATABASE_URL='postgres://localhost:5432/
 from datetime import datetime
 from flask import Flask, request, render_template, abort, url_for, redirect, json, jsonify, escape
-# from flask_sqlalchemy import SQLAlchemy
-import json,html
+import html #json
 app = Flask(__name__, static_url_path='') # coz, import style >>> import flask
 # from sqlalchemy.sql import text
+app.config["DEBUG"] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
 """
 import the others function
 """
 import spcchart
 from spcTable import SpcTable
 import os,sys,traceback
-from sqlalchemy import create_engine 
 #------------CONFIGURATION--------------
 # print(os.getcwd()) # print the pwd status
 class PassGateway():
