@@ -1,21 +1,15 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
 # df = pd.read_csv('workbook_name.csv', sep=',',header=0); nmp = df.to_numpy() ;data = nmp[:,11]#; data = pd.DataFrame(nmp[:,11])
 # data = spcTable.data
 global original
 # data_mean = np.mean(original)
 # data_sig = np.std(original)
 # print(len(data))
-=======
+global data_mean
+global data_sig
 
-df = pd.read_csv('workbook_name.csv', sep=',',header=1); nmp = df.to_numpy() ;data = nmp[:,11]#; data = pd.DataFrame(nmp[:,11])
-
-data_mean = np.mean(data)
-data_sig = np.std(data)
-print(len(data))
->>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
 def _sliding_chunker(original, segment_len, slide_len):
     """Split a list into a series of sub-lists...
 
@@ -118,38 +112,25 @@ def plot_rules(data, chart_type=2):
         plt.legend()
         plt.show()
 
-        return fig
+        # return fig
 
 # plot_rules(data=data)
 
 def apply_rules(original, rules='all', chart_type=2):
-<<<<<<< HEAD
-    global data_mean
-    global data_sig
     data_mean = np.mean(original)
     data_sig = np.std(original)
-    print("dddd",[data_sig,data_mean])
-=======
-    mean = original.mean()
-    sigma = original.std()
-
->>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
     if rules == 'all':
         rules = [rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8]
     df = pd.DataFrame(original)
     for i in range(len(rules)):
-<<<<<<< HEAD
-        df[rules[i].__name__] = rules[i](original, data_mean, data_sig)
-=======
-        df[rules[i].__name__] = rules[i](original, mean, sigma)
->>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
+        df[rules[i].__name__] = rules[i](original= original, mean = data_mean, sigma = data_sig)
 
     fig = plot_rules(df, chart_type)
 
     return df, fig
 
 
-def rule1(original, mean=data_mean, sigma = data_sig):
+def rule1(original, mean, sigma):
     """One point is more than 3 standard deviations from the mean."""
     if mean is None:
         mean = original.mean()
@@ -173,7 +154,7 @@ def rule1(original, mean=data_mean, sigma = data_sig):
     return results
 
 
-def rule2(original, mean=data_mean, sigma = data_sig):
+def rule2(original, mean, sigma):
     """Nine (or more) points in a row are on the same side of the mean."""
     if mean is None:
         mean = original.mean()
@@ -205,8 +186,7 @@ def rule2(original, mean=data_mean, sigma = data_sig):
 
     return results
 
-
-def rule3(original, mean=data_mean, sigma = data_sig):
+def rule3(original, mean, sigma):
     """Six (or more) points in a row are continually increasing (or decreasing)."""
     if mean is None:
         mean = original.mean()
@@ -242,8 +222,7 @@ def rule3(original, mean=data_mean, sigma = data_sig):
 
     return results
 
-
-def rule4(original, mean=data_mean, sigma = data_sig):
+def rule4(original, mean, sigma):
     """Fourteen (or more) points in a row alternate in direction, increasing then decreasing."""
     if mean is None:
         mean = original.mean()
@@ -279,8 +258,7 @@ def rule4(original, mean=data_mean, sigma = data_sig):
 
     return results
 
-
-def rule5(original, mean=data_mean, sigma = data_sig):
+def rule5(original, mean, sigma):
     """Two (or three) out of three points in a row are more than 2 standard deviations from the mean in the same
     direction."""
 
@@ -306,8 +284,7 @@ def rule5(original, mean=data_mean, sigma = data_sig):
 
     return results
 
-
-def rule6(original, mean=data_mean, sigma = data_sig):
+def rule6(original, mean, sigma):
     """Four (or five) out of five points in a row are more than 1 standard deviation from the mean in the same
     direction."""
 
@@ -333,8 +310,7 @@ def rule6(original, mean=data_mean, sigma = data_sig):
 
     return results
 
-
-def rule7(original, mean=data_mean, sigma = data_sig): #temporary off
+def rule7(original, mean, sigma): #temporary off
     """Fifteen points in a row are all within 1 standard deviation of the mean on either side of the mean."""
 
     if mean is None:
@@ -360,8 +336,7 @@ def rule7(original, mean=data_mean, sigma = data_sig): #temporary off
 
     return results
 
-
-def rule8(original, mean=data_mean, sigma = data_sig):
+def rule8(original, mean, sigma):
 
     """Eight points in a row exist, but none within 1 standard deviation of the mean, and the points are in both
     directions from the mean."""
@@ -390,10 +365,4 @@ def rule8(original, mean=data_mean, sigma = data_sig):
 
     return results
 
-
-
-<<<<<<< HEAD
 # apply_rules(original=data)
-=======
-apply_rules(original=data)
->>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
