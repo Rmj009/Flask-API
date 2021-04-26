@@ -66,8 +66,8 @@ def index():
 @app.route("/capability", methods=['GET'])
 def capability():
     # query params
-    b = request.args.get('begin_time') # try to request 'n'
-    e = request.args.get('expiry_time')
+    b = request.args.get('begin_time') # start time
+    e = request.args.get('expiry_time') # end time
     wuuid = request.args.get('wooh_uuid')
     suuid = request.args.get('smpc_uuid')
     resultCapablity = SpcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
