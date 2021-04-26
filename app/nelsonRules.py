@@ -1,12 +1,21 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+<<<<<<< HEAD
 # df = pd.read_csv('workbook_name.csv', sep=',',header=0); nmp = df.to_numpy() ;data = nmp[:,11]#; data = pd.DataFrame(nmp[:,11])
 # data = spcTable.data
 global original
 # data_mean = np.mean(original)
 # data_sig = np.std(original)
 # print(len(data))
+=======
+
+df = pd.read_csv('workbook_name.csv', sep=',',header=1); nmp = df.to_numpy() ;data = nmp[:,11]#; data = pd.DataFrame(nmp[:,11])
+
+data_mean = np.mean(data)
+data_sig = np.std(data)
+print(len(data))
+>>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
 def _sliding_chunker(original, segment_len, slide_len):
     """Split a list into a series of sub-lists...
 
@@ -114,16 +123,26 @@ def plot_rules(data, chart_type=2):
 # plot_rules(data=data)
 
 def apply_rules(original, rules='all', chart_type=2):
+<<<<<<< HEAD
     global data_mean
     global data_sig
     data_mean = np.mean(original)
     data_sig = np.std(original)
     print("dddd",[data_sig,data_mean])
+=======
+    mean = original.mean()
+    sigma = original.std()
+
+>>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
     if rules == 'all':
         rules = [rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8]
     df = pd.DataFrame(original)
     for i in range(len(rules)):
+<<<<<<< HEAD
         df[rules[i].__name__] = rules[i](original, data_mean, data_sig)
+=======
+        df[rules[i].__name__] = rules[i](original, mean, sigma)
+>>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
 
     fig = plot_rules(df, chart_type)
 
@@ -373,4 +392,8 @@ def rule8(original, mean=data_mean, sigma = data_sig):
 
 
 
+<<<<<<< HEAD
 # apply_rules(original=data)
+=======
+apply_rules(original=data)
+>>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6

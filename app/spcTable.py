@@ -2,8 +2,12 @@ from flask import Flask, request, render_template, abort, url_for, json, jsonify
 from sqlalchemy import select, column, join, create_engine
 from sqlalchemy.orm import sessionmaker, aliased
 from calculator import *
+<<<<<<< HEAD
 from nelsonRules import *
 from orm_alchemy import *
+=======
+from alchemy_db import *
+>>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
 db = SQLAlchemy() # db.init_app(app)
 engine = create_engine('postgresql://postgres:edge9527@localhost:5432/dev_tenant')
 Session = sessionmaker(bind=engine)
@@ -109,7 +113,6 @@ class SpcTable:
                 raise
         
   
-    # print("jj", j1)
     # stmt = select(table_history).select_from(j1) #subquery
     # print("stmt:", stmt)
     # print(stmt)
@@ -122,6 +125,7 @@ class SpcTable:
 
 # if __name__ == "__main__":
 
+<<<<<<< HEAD
 # #     db = SQLAlchemy()
 # #     app = Flask(__name__, static_url_path='')   # app = flask.Flask(__name__) # coz, import style >>> import flask
 # #     app.config["DEBUG"] = True
@@ -140,3 +144,7 @@ class SpcTable:
 #     suuid = '69636a46-48cb-4a99-976e-5ecc024c1332'
 #     resultCapablity = SpcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
 #     print(resultCapablity)
+=======
+    # resultCapablity = spcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+    # print(resultCapablity)
+>>>>>>> 64d0f170d7184dc7e45cdb1adb944be7ef573ae6
