@@ -5,8 +5,11 @@ from calculator import *
 from nelsonRules import *
 from alchemy_db import *
 import threading
+import os
 db = SQLAlchemy() # db.init_app(app)
 engine = create_engine('postgresql://postgres:edge9527@localhost:5432/dev_tenant')
+# engine = create_engine(os.getenv('PG_URL'))
+
 Session = sessionmaker(bind=engine)
 # create a configured "Session" class
 session = Session() # create a Session
@@ -31,8 +34,8 @@ class SpcTable:
     def __init__(self,rule):
         self.rule = rule
         self.array = array        
-    # self.firstvar = begin_time
-    # self.lastvar = expiry_time
+    # self.firstvar = startTime
+    # self.lastvar = endTime
     def dataPipline(tables):
         valuelst = [item[0] for item in tables]
         print("vvvv:", valuelst)
@@ -84,7 +87,7 @@ class SpcTable:
         # apply_rules(dataPipline(tables = )
         pass
     # start_time,end_time,work_order_op_history_uuid,spc_measure_point_config_uuid
-    def queryfunc(begin_time,expiry_time,wooh_uuid,smpc_uuid): 
+    def queryfunc(startTime,endTime,wooh_uuid,smpc_uuid): 
         table_config = aliased(spc_measure_point_config) # operation_uuid <=> table_work_order
         table_history = aliased(spc_measure_point_history) # work_order_op_history_uuid <=> table_work_order.uuid
         table_work_order = aliased(work_order_op_history) # operation_uuid <=> table_config
@@ -93,7 +96,7 @@ class SpcTable:
             j1 = session.query(table_history.value,table_work_order.good,table_work_order.defect,table_config.lsl,table_config.usl)\
             .join(table_config, table_history.spc_measure_point_config_uuid == table_config.uuid)\
             .join(table_work_order, table_work_order.uuid == table_history.work_order_op_history_uuid)\
-            .where((table_work_order.start_time > begin_time) & (table_work_order.end_time < expiry_time) & (table_history.spc_measure_point_config_uuid == smpc_uuid))
+            .where((table_work_order.start_time > startTime) & (table_work_order.end_time < endTime) & (table_history.spc_measure_point_config_uuid == smpc_uuid))
             if (table_history.work_order_op_history_uuid != None) :
                 yy = j1.filter(table_history.work_order_op_history_uuid == wooh_uuid)
             queryResult = [row for row in session.execute(yy)]
@@ -101,10 +104,15 @@ class SpcTable:
             qResult = SpcTable.dataPipline(tables=queryResult)
             # print("qqqqqqqqqqqqqq",qResult['valuelst'])
             # SpcTable.drawchart2(datapoints = qResult['valuelst'])
-            t = threading.Thread(target = apply_rules, args=(qResult['valuelst'],'all',2))
+            try:
+                # t = threading.Thread(target = apply_rules, args=(qResult['valuelst'],'all',2) ,daemon=True)
+                
+                resultCapablity = Calculator.calc(mylst = qResult)
+                print('resultCCCC:',resultCapablity)
+            except Exception as e:
+                print("chart error", e)
             
-            resultCapablity = Calculator.calc(mylst = qResult)
-            return resultCapablity
+            return resultCapablity#, t.start()
 
         except Exception as e:
                 print("error type: ",type(e),str(e))
@@ -139,5 +147,5 @@ class SpcTable:
 #     e = '2021-01-15T10:47:32Z'
 #     wuuid = 'd5473fb7-42ac-4794-bf4d-358f4ddccd1c'
 #     suuid = '69636a46-48cb-4a99-976e-5ecc024c1332'
-#     resultCapablity = SpcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+#     resultCapablity = SpcTable.queryfunc(startTime=b,endTime=e,wooh_uuid=wuuid,smpc_uuid=suuid)
 #     print(resultCapablity)

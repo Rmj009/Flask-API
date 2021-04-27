@@ -1,18 +1,20 @@
 # export DATABASE_URL='postgres://localhost:5432/
 from datetime import datetime
+import os
 from flask import Flask, request, render_template, abort, url_for, redirect, json, jsonify, escape
 import html #json
-app = Flask(__name__, static_url_path='') # coz, import style >>> import flask
-# from sqlalchemy.sql import text
+app = Flask(__name__, static_url_path='')
 app.config["DEBUG"] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:edge9527@localhost:5432/dev_tenant"
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:edge9527@host.docker.internal:5432/dev_tenant'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:edge9527@aaaaa:5432/dev_tenant'
 """
 import the others function
 """
-import spcchart
 from spcTable import SpcTable
 import os,sys,traceback
+from setting import *
+
 #------------CONFIGURATION--------------
 # print(os.getcwd()) # print the pwd status
 class PassGateway():
@@ -66,52 +68,35 @@ def index():
 @app.route("/capability", methods=['GET'])
 def capability():
     # query params
-    b = request.args.get('begin_time') # start time
-    e = request.args.get('expiry_time') # end time
+    b = request.args.get('startTime') # start time
+    e = request.args.get('endTime') # end time
     wuuid = request.args.get('wooh_uuid')
     suuid = request.args.get('smpc_uuid')
-    resultCapablity = SpcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+    resultCapablity = SpcTable.queryfunc(startTime=b,endTime=e,wooh_uuid=wuuid,smpc_uuid=suuid)
     # resultCapablity = dict(zip(keys, calc(mylst = spcTable_quesuuidry)))
     print("Capablity result: ", resultCapablity)
-
+    try: 
+      return render_template('index.html', title="spc_show", jsonfile=json.jsonify(resultCapablity) )
+    except Exception as e:
+      pass
     return resultCapablity
 
 
 #-----------------ENTRANCE-----------------------
 @app.route('/', methods=['GET'])
 def home():
-  b = request.args.get('begin_time') # b = 2020-09-02T07:41:03Z
-  e = request.args.get('expiry_time') # e = 2021-01-15T10:47:32Z
-  wuuid = request.args.get('wooh_uuid')
-  suuid = request.args.get('smpc_uuid')
-  # b = '2020-09-02T07:41:03Z'
+  # b = request.args.get('startTime') # b = 2020-09-02T07:41:03Z
+  # e = request.args.get('endTime') # e = 2021-01-15T10:47:32Z
+  # wuuid = request.args.get('wooh_uuid')
+  # suuid = request.args.get('smpc_uuid')
+  # # b = '2020-09-02T07:41:03Z'
   # e = '2021-01-15T10:47:32Z'
   # wuuid = 'd5473fb7-42ac-4794-bf4d-358f4ddccd1c'
   # suuid = '69636a46-48cb-4a99-976e-5ecc024c1332'
-  resultCapablity = SpcTable.queryfunc(begin_time=b,expiry_time=e,wooh_uuid=wuuid,smpc_uuid=suuid)
+  # resultCapablity = SpcTable.queryfunc(startTime=b,endTime=e,wooh_uuid=wuuid,smpc_uuid=suuid)
   # print("Capablity result: ", resultCapablity)
-  try: 
-      return render_template('index.html', title="spc_show", jsonfile=json.dumps(resultCapablity) )
-  except Exception as e:
-      pass
-
-
-@app.route('/loginQ', methods=['GET', 'POST']) 
-def loginQ():
-    if request.method == 'POST': 
-        return 'SpcDashboard ' + request.values['specificChart'] #redirect(url_for('hello', specificChart=request.form.get('specificChart')))
-    # return render_template('loginQ.html')
-    #  username = request.args.get('username')
-    #  password = request.args.get('password')
-
-    return "<form method='post' action='/loginQ'><input type='text' name='specificChart' />" \
-            "</br>" \
-           "<button type='submit'>Submit</button></form>"
-
-# @app.route('/hello/<specificChart>')
-# def hello(specificChart):
-#     return render_template('helloDashboard.html', username=specificChart)
-
+  return 'ok', 200
+  
 
 
 def test():
@@ -119,4 +104,4 @@ def test():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=5000) #os.getenv('PORT')

@@ -112,7 +112,7 @@ def plot_rules(data, chart_type=2):
         plt.legend()
         plt.show()
 
-        # return fig
+        return fig
 
 # plot_rules(data=data)
 
